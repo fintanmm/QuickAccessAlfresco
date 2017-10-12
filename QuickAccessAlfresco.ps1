@@ -9,3 +9,7 @@ function Build-Url([String] $urlParams="") {
     }
     return $url
 }
+
+function Get-ListOfSites([String] $url) {
+    return Invoke-WebRequest -Uri $url
+}
