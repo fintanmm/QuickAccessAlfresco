@@ -1,0 +1,6 @@
+{
+    "cmd": ["powershell.exe", "Invoke-Pester",  "-CodeCoverage"],
+    "shell": true,
+    "selector": "source.powershell",
+    "working_dir": "${project_path}"
+}
