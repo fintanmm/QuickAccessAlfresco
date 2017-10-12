@@ -4,7 +4,7 @@ function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
     $url = "http://$domainName/alfresco/service/api/people/$whoAmI/sites/"
     
-    if ($urlParams.length -gt 0) {
+    if ($urlParams) {
         $url = "$($url)?$($urlParams)"
     }
     return $url
@@ -12,4 +12,8 @@ function Build-Url([String] $urlParams="") {
 
 function Get-ListOfSites([String] $url) {
     return Invoke-WebRequest -Uri $url
+}
+
+function Create-QuickAccessLinks {
+    return "TRUE"
 }

@@ -26,3 +26,9 @@ Describe 'Get-ListOfSites' {
         Get-ListOfSites $url | Should Match '"title": "Marketing"'
     }
 }
+
+Describe 'Create-QuickAccessLinks' {
+    It "Should create Quick Access links to Alfresco." {
+        Create-QuickAccessLinks | Should be "TRUE"
+    }
+}
