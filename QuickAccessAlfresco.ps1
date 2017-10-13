@@ -11,7 +11,7 @@ function Build-Url([String] $urlParams="") {
 }
 
 function Get-ListOfSites([String] $url) {
-    return Invoke-WebRequest -Uri $url
+    return Invoke-WebRequest -Uri $url | ConvertFrom-Json
 }
 
 function Create-QuickAccessLinks {

@@ -5,7 +5,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 .".\QuickAccessAlfresco.ps1"
 
 $url = "http://localhost:8080/alfresco/service/api/people/fintan/sites/"
-$json
+$convertedJSON = @{0 = @{"title" = "Benchmark";};}
 
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
@@ -23,7 +23,7 @@ Describe 'Build-Url' {
 Describe 'Get-ListOfSites' {
     It "Should retrieve a list of sites for the currently logged in user." {
         $convertedObject = (Get-Content stub\sites.json)
-        Get-ListOfSites $url | Should Match '"title": "Marketing"'
+        Get-ListOfSites $url | Should Match $convertedJSON[0].title
     }
 }
 
