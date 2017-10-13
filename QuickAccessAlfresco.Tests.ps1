@@ -5,7 +5,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 .".\QuickAccessAlfresco.ps1"
 
 $url = "http://localhost:8080/alfresco/service/api/people/fintan/sites/"
-$convertedJSON = @{0 = @{"title" = "Benchmark";};}
+$convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};}
 
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
@@ -28,7 +28,19 @@ Describe 'Get-ListOfSites' {
 }
 
 Describe 'Create-QuickAccessLinks' {
-    It "Should create Quick Access links to Alfresco." {
-        Create-QuickAccessLinks | Should be "TRUE"
+    It "Should create Quick Access link to Alfresco." {
+        $createLink = Create-QuickAccessLinks $convertedJSON[0]
+        $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match $convertedJSON[0].description
     }
 }
+
+Describe 'Create-QuickAccessLinks' {
+    It "Should not create Quick Access link to Alfresco because it exists." {
+        $createLink = Create-QuickAccessLinks $convertedJSON[0]
+        $createLink | Should be "False"
+    }
+}
+# Clean up after tests
+Remove-Item "$env:userprofile\Links\Benchmark.lnk"
