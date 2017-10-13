@@ -38,18 +38,18 @@ Describe 'Create-HomeAndSharedLinks' {
 Remove-Item "$env:userprofile\Links\Home.lnk"
 Remove-Item "$env:userprofile\Links\Shared.lnk"
 
-Describe 'Create-QuickAccessLinks' {
+Describe 'Create-Link' {
     It "Should create Quick Access link to Alfresco." {
-        $createLink = Create-QuickAccessLinks $convertedJSON[0]
+        $createLink = Create-Link $convertedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
     }
 }
 
-Describe 'Create-QuickAccessLinks' {
+Describe 'Create-Link' {
     It "Should not create Quick Access link to Alfresco because it exists." {
-        $createLink = Create-QuickAccessLinks $convertedJSON[0]
+        $createLink = Create-Link $convertedJSON[0]
         $createLink | Should be "False"
     }
 }

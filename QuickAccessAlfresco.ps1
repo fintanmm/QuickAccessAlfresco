@@ -21,12 +21,12 @@ function Get-ListOfSites([String] $url) {
 
 function Create-HomeAndSharedLinks {
    $links = @{}
-   $links[0] = Create-QuickAccessLinks(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;})
-   $links[1] = Create-QuickAccessLinks(@{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
+   $links[0] = Create-Link(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;})
+   $links[1] = Create-Link(@{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
    return $links
 }
 
-function Create-QuickAccessLinks($link) {
+function Create-Link($link) {
 
     $path = "$linkBaseDir\$($link.title).lnk"
 
