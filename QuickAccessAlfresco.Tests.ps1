@@ -52,3 +52,6 @@ Describe 'Create-HomeAndSharedLinks' {
         $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
     }
 }
+# Clean up after test
+Remove-Item "$env:userprofile\Links\Home.lnk"
+Remove-Item "$env:userprofile\Links\Shared.lnk"
