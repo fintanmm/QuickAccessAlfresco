@@ -1,6 +1,8 @@
 $domainName = "localhost:8080"
 $mapDomain = "localhost"
 $linkBaseDir = "$env:userprofile\Links"
+#$userHome = "\\$mapDomain\Alfresco\User Homes\$whoAmI"
+#$shared = "\\$mapDomain\Alfresco\Shared"
 $prependToLinkTitle = ""
 
 function Build-Url([String] $urlParams="") {
@@ -31,4 +33,12 @@ function Create-QuickAccessLinks($link) {
         $shortcut.Save()
         return $shortcut 
     }
+}
+
+function Create-HomeAndSharedLinks {
+   $links = @{}
+   $links[0] = Create-QuickAccessLinks(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;})
+   $links[1] = Create-QuickAccessLinks(@{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
+   return $links
+    
 }
