@@ -19,6 +19,13 @@ function Get-ListOfSites([String] $url) {
     return Invoke-WebRequest -Uri $url | ConvertFrom-Json
 }
 
+function Create-HomeAndSharedLinks {
+   $links = @{}
+   $links[0] = Create-QuickAccessLinks(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;})
+   $links[1] = Create-QuickAccessLinks(@{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
+   return $links
+}
+
 function Create-QuickAccessLinks($link) {
 
     $path = "$linkBaseDir\$($link.title).lnk"
@@ -33,12 +40,4 @@ function Create-QuickAccessLinks($link) {
         $shortcut.Save()
         return $shortcut 
     }
-}
-
-function Create-HomeAndSharedLinks {
-   $links = @{}
-   $links[0] = Create-QuickAccessLinks(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;})
-   $links[1] = Create-QuickAccessLinks(@{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
-   return $links
-    
 }

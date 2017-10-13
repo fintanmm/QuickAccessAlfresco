@@ -28,6 +28,16 @@ Describe 'Get-ListOfSites' {
     }
 }
 
+Describe 'Create-HomeAndSharedLinks' {
+    It "Should create links for the user home and shared" {
+        $createHomeAndShared = Create-HomeAndSharedLinks 
+        $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
+    }
+}
+# Clean up after test
+Remove-Item "$env:userprofile\Links\Home.lnk"
+Remove-Item "$env:userprofile\Links\Shared.lnk"
+
 Describe 'Create-QuickAccessLinks' {
     It "Should create Quick Access link to Alfresco." {
         $createLink = Create-QuickAccessLinks $convertedJSON[0]
@@ -45,13 +55,3 @@ Describe 'Create-QuickAccessLinks' {
 }
 # Clean up after tests
 Remove-Item "$env:userprofile\Links\Benchmark.lnk"
-
-Describe 'Create-HomeAndSharedLinks' {
-    It "Should create links for the user home and shared" {
-        $createHomeAndShared = Create-HomeAndSharedLinks 
-        $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
-    }
-}
-# Clean up after test
-Remove-Item "$env:userprofile\Links\Home.lnk"
-Remove-Item "$env:userprofile\Links\Shared.lnk"
