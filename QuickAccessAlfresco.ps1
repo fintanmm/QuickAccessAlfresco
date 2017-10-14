@@ -21,12 +21,12 @@ function Get-ListOfSites([String] $url) {
 
 function Create-HomeAndSharedLinks {
    $links = @{}
-   $links[0] = Create-Link(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;})
-   $links[1] = Create-Link(@{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
+   $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes"
+   $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared"
    return $links
 }
 
-function Create-Link($link) {
+function Create-Link($link, [String] $sitePath = "Sites") {
 
     $path = "$linkBaseDir\$($link.title).lnk"
 
@@ -35,7 +35,12 @@ function Create-Link($link) {
     } else {
         $wshShell = New-Object -ComObject WScript.Shell
         $shortcut = $wshShell.CreateShortcut("$path")
-        $shortcut.TargetPath = "\\$mapDomain\Alfresco\Sites\" + $link.shortName + "\documentLibrary"
+
+        if ($sitePath -eq "Sites") {
+            $shortcut.TargetPath = "\\$mapDomain\Alfresco\" + $sitePath + "\" + $link.shortName + "\documentLibrary"
+        } else {
+            $shortcut.TargetPath = "\\$mapDomain\Alfresco\" + $sitePath + "\" + $link.shortName
+        }
         $shortcut.Description = $link.description
         $shortcut.Save()
         return $shortcut 
