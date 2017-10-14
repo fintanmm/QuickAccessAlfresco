@@ -47,3 +47,12 @@ function Create-Link($link, [String] $whatPath = "Sites") {
         return $shortcut 
     }
 }
+
+function Create-QuickAccessLinks($links) {
+    $createdLinks = @()
+    foreach ($link in $links) {
+        $addLink = Create-Link $link
+        $createdLinks += $addLink
+    }    
+    return $createdLinks
+}
