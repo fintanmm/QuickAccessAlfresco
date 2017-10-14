@@ -1,8 +1,6 @@
 $domainName = "localhost:8080"
 $mapDomain = "localhost"
 $linkBaseDir = "$env:userprofile\Links"
-#$userHome = "\\$mapDomain\Alfresco\User Homes\$whoAmI"
-#$shared = "\\$mapDomain\Alfresco\Shared"
 $prependToLinkTitle = ""
 
 function Build-Url([String] $urlParams="") {
@@ -44,8 +42,7 @@ function Create-Link($link, [String] $whatPath = "Sites") {
     $shortcut.TargetPath = $findPath.Get_Item($whatPath)
     $shortcut.Description = $link.description
     $shortcut.Save()
-    return $shortcut 
-    
+    return $shortcut
 }
 
 function Create-QuickAccessLinks($links) {
