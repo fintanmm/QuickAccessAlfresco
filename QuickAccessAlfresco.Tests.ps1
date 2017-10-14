@@ -4,7 +4,8 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 .".\QuickAccessAlfresco.ps1"
 
-$url = "http://localhost:8080/alfresco/service/api/people/fintan/sites/"
+$whoAmI = $env:UserName
+$url = "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
@@ -17,7 +18,7 @@ Describe 'Build-Url' {
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco with paramaters prepended." {
     $urlWithParams = Build-Url "hello=world"
-    $urlWithParams | Should -Be "http://localhost:8080/alfresco/service/api/people/fintan/sites/?hello=world"
+    $urlWithParams | Should -Be "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/?hello=world"
   }
 }
 
@@ -32,7 +33,7 @@ Describe 'Create-HomeAndSharedLinks' {
     It "Should create links for the user home and shared" {
         $createHomeAndShared = Create-HomeAndSharedLinks 
         $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
-        $createHomeAndShared[0].TargetPath | Should Be "\\localhost\Alfresco\User Homes\fintan"
+        $createHomeAndShared[0].TargetPath | Should Be "\\localhost\Alfresco\User Homes\$whoAmI"
         $createHomeAndShared[1].Description | Should Match $homeAndShared[1].description
         $createHomeAndShared[1].TargetPath | Should Be "\\localhost\Alfresco\Shared"
     }
