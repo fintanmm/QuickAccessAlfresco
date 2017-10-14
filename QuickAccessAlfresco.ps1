@@ -26,7 +26,7 @@ function Create-HomeAndSharedLinks {
    return $links
 }
 
-function Create-Link($link, [String] $sitePath = "Sites") {
+function Create-Link($link, [String] $whatPath = "Sites") {
 
     $path = "$linkBaseDir\$($link.title).lnk"
 
@@ -36,11 +36,12 @@ function Create-Link($link, [String] $sitePath = "Sites") {
         $wshShell = New-Object -ComObject WScript.Shell
         $shortcut = $wshShell.CreateShortcut("$path")
 
-        if ($sitePath -eq "Sites") {
-            $shortcut.TargetPath = "\\$mapDomain\Alfresco\" + $sitePath + "\" + $link.shortName + "\documentLibrary"
-        } else {
-            $shortcut.TargetPath = "\\$mapDomain\Alfresco\" + $sitePath + "\" + $link.shortName
+        $findPath = @{
+            "Sites" = "\\$mapDomain\Alfresco\" + $whatPath + "\" + $link.shortName + "\documentLibrary"; 
+            "User Homes" = "\\$mapDomain\Alfresco\" + $whatPath + "\" + $link.shortName;
+            "Shared" = "\\$mapDomain\Alfresco\" + $whatPath;
         }
+        $shortcut.TargetPath = $findPath.Get_Item($whatPath)
         $shortcut.Description = $link.description
         $shortcut.Save()
         return $shortcut 

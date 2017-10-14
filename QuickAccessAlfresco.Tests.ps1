@@ -33,6 +33,8 @@ Describe 'Create-HomeAndSharedLinks' {
         $createHomeAndShared = Create-HomeAndSharedLinks 
         $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
         $createHomeAndShared[0].TargetPath | Should Be "\\localhost\Alfresco\User Homes\fintan"
+        $createHomeAndShared[1].Description | Should Match $homeAndShared[1].description
+        $createHomeAndShared[1].TargetPath | Should Be "\\localhost\Alfresco\Shared"
     }
 }
 # Clean up after test
