@@ -1,5 +1,5 @@
 {
-    "cmd": ["powershell.exe", "Invoke-Pester",  "-CodeCoverage"],
+    "cmd": [".\run.bat"],
     "shell": true,
     "selector": "source.powershell",
     "working_dir": "${project_path}"
