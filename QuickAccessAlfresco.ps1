@@ -35,9 +35,9 @@ function Create-Link($link, [String] $whatPath = "Sites") {
     $shortcut = $wshShell.CreateShortcut("$path")
 
     $findPath = @{
-        "Sites" = "\\$mapDomain\Alfresco\" + $whatPath + "\" + $link.shortName + "\documentLibrary"; 
-        "User Homes" = "\\$mapDomain\Alfresco\" + $whatPath + "\" + $link.shortName;
-        "Shared" = "\\$mapDomain\Alfresco\" + $whatPath;
+        "Sites" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName + "\documentLibrary"; 
+        "User Homes" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName;
+        "Shared" = "\\$mapDomain\Alfresco\$whatPath";
     }
     $shortcut.TargetPath = $findPath.Get_Item($whatPath)
     $shortcut.Description = $link.description
@@ -49,7 +49,9 @@ function Create-QuickAccessLinks($links) {
     $createdLinks = @()
     foreach ($link in $links) {
         $addLink = Create-Link $link
-        $createdLinks += $addLink
+        if (-not $addLink) {
+            $createdLinks += $addLink
+        }
     }    
     return $createdLinks
 }
