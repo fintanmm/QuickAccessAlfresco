@@ -51,18 +51,19 @@ Describe 'Create-Link' {
     }
 }
 
+# Clean up after tests
+Remove-Item "$env:userprofile\Links\Benchmark.lnk"
+
 Describe 'Create-Link' {
     It "Should not create Quick Access link to Alfresco because it exists." {
         $createLink = Create-Link $convertedJSON[0]
         $createLink | Should be "False"
     }
 }
-# Clean up after tests
-Remove-Item "$env:userprofile\Links\Benchmark.lnk"
 
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {
-        $createLinks = Create-QuickAccessLinks $convertedJSON
+        $createLink = Create-QuickAccessLink $convertedJSON
         # $createLinks[0].Description | Should Match $convertedJSON[0].description
     }
 }
