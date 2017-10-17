@@ -9,15 +9,10 @@ $url = "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
-function Clean-Up {
+function Clean-Up($links) {
     # Clean up after test
-    try {
-        Remove-Item "$env:userprofile\Links\Home.lnk"
-        Remove-Item "$env:userprofile\Links\Shared.lnk"
-        Remove-Item "$env:userprofile\Links\Benchmark.lnk"    
-        Remove-Item "$env:userprofile\Links\Recruitment.lnk"    
-    } catch [System.Management.Automation.ItemNotFoundException]{
-        
+    foreach($link in $links) {
+        Remove-Item "$env:userprofile\Links\$($link).lnk"
     }
 }
 
@@ -68,11 +63,13 @@ Describe 'Create-Link' {
     }
 }
 
-Clean-Up
-
+Clean-Up @("Home", "Shared", "Benchmark")
+    
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {
         $createLinks = Create-QuickAccessLinks $convertedJSON
         # $createLinks[0].Description | Should Match $convertedJSON[0].description
     }
 }
+
+Clean-Up @("Benchmark", "Recruitment")
