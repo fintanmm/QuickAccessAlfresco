@@ -14,7 +14,7 @@ function Build-Url([String] $urlParams="") {
 }
 
 function Get-ListOfSites([String] $url) {
-    return Invoke-WebRequest -Uri $url | ConvertFrom-Json
+    return Invoke-WebRequest -Uri $url -TimeoutSec 10 | ConvertFrom-Json
 }
 
 function Create-HomeAndSharedLinks {
@@ -25,6 +25,10 @@ function Create-HomeAndSharedLinks {
 }
 
 function Create-Link($link, [String] $whatPath = "Sites") {
+
+    if ($link.Count -eq 0) {
+        return "False"
+    }
 
     $path = "$linkBaseDir\$($link.title).lnk"
 
@@ -47,9 +51,9 @@ function Create-Link($link, [String] $whatPath = "Sites") {
 
 function Create-QuickAccessLinks($links) {
     $createdLinks = @()
-    foreach ($link in $links) {
-        $addLink = Create-Link $link
-        if (-not $addLink) {
+    for($i = 0; $i -lt $links.Count; $i++) {
+        $addLink = Create-Link $links[$i]
+        if ($addLink -ne "False") {
             $createdLinks += $addLink
         }
     }    
