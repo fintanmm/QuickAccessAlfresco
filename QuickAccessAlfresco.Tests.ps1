@@ -9,13 +9,23 @@ $url = "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
+function Clean-Up {
+    # Clean up after test
+    try {
+        Remove-Item "$env:userprofile\Links\Home.lnk"
+        Remove-Item "$env:userprofile\Links\Shared.lnk"
+        Remove-Item "$env:userprofile\Links\Benchmark.lnk"    
+        Remove-Item "$env:userprofile\Links\Recruitment.lnk"    
+    } catch [System.Management.Automation.ItemNotFoundException]{
+        
+    }
+}
+
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should -Be $url
   }
-}
 
-Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco with paramaters prepended." {
     $urlWithParams = Build-Url "hello=world"
     $urlWithParams | Should -Be "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/?hello=world"
@@ -38,9 +48,6 @@ Describe 'Create-HomeAndSharedLinks' {
         $createHomeAndShared[1].TargetPath | Should Be "\\localhost\Alfresco\Shared"
     }
 }
-# Clean up after test
-Remove-Item "$env:userprofile\Links\Home.lnk"
-Remove-Item "$env:userprofile\Links\Shared.lnk"
 
 Describe 'Create-Link' {
     It "Should create Quick Access link to Alfresco." {
@@ -49,12 +56,7 @@ Describe 'Create-Link' {
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
     }
-}
 
-# Clean up after tests
-Remove-Item "$env:userprofile\Links\Benchmark.lnk"
-
-Describe 'Create-Link' {
     It "Should not create Quick Access link to Alfresco because it exists." {
         $createLink = Create-Link $convertedJSON[0]
         $createLink | Should be "False"
@@ -63,7 +65,7 @@ Describe 'Create-Link' {
 
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {
-        $createLink = Create-QuickAccessLink $convertedJSON
+        $createLinks = Create-QuickAccessLinks $convertedJSON
         # $createLinks[0].Description | Should Match $convertedJSON[0].description
     }
 }
