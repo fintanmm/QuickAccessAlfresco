@@ -61,7 +61,14 @@ Describe 'Create-Link' {
         $createLink = Create-Link $convertedJSON[0]
         $createLink | Should be "False"
     }
+
+    It "Should not create an empty Quick Access link to Alfresco." {
+        $createLink = Create-Link @{}
+        $createLink | Should be "False"
+    }
 }
+
+Clean-Up
 
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {
