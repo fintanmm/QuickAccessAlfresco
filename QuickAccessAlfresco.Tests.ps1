@@ -35,7 +35,7 @@ Describe 'Build-Url' {
 Describe 'Get-ListOfSites' {
     It "Should retrieve a list of sites for the currently logged in user." {
         $convertedObject = (Get-Content stub\sites.json)
-        Get-ListOfSites $url | Should Match $convertedJSON[0].title
+        Get-ListOfSites "$url/index.json" | Should Match $convertedJSON[0].title
     }
 }
 
