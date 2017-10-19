@@ -32,6 +32,10 @@ function Create-Link($link, [String] $whatPath = "Sites") {
 
     $path = "$linkBaseDir\$($link.title).lnk"
 
+    if($link.contains("prepend")){
+        $path = "$linkBaseDir\$($link.prepend)$($link.title).lnk"
+    }
+ 
     if (Test-Path $path) {
         return "False"
     }

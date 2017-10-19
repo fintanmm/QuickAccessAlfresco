@@ -11,8 +11,13 @@ $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortNam
 
 function Clean-Up($links) {
     # Clean up after test
+    $testLink = "$env:userprofile\Links\"
     foreach($link in $links) {
-        Remove-Item "$env:userprofile\Links\$($link).lnk"
+        if (Test-Path "$($testLink)$($link).lnk") {
+            Remove-Item "$($testLink)$($link).lnk"
+        } else {
+            Write-Host "Can not find $link"
+        }
     }
 }
 
@@ -61,14 +66,26 @@ Describe 'Create-Link' {
         $createLink = Create-Link @{}
         $createLink | Should be "False"
     }
+
+    Clean-Up @("Home", "Shared", "Benchmark")
+
+    It "Should pepend text to the Quick Access link to Alfresco." {
+        $convertedJSON[0]["prepend"] = "Alfresco - "
+        $createLink = Create-Link $convertedJSON[0]
+        $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
+        $createLink | Should Not Be "False"
+        $createLink.Description | Should Match $convertedJSON[0].description
+
+    }    
 }
 
-Clean-Up @("Home", "Shared", "Benchmark")
+Clean-Up @("Alfresco - Benchmark")
     
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {
         $createLinks = Create-QuickAccessLinks $convertedJSON
-        # $createLinks[0].Description | Should Match $convertedJSON[0].description
+        $createLinks[0].Description | Should Match $convertedJSON[0].description
+        $createLinks[1].Description | Should Match $convertedJSON[1].description
     }
 }
 
