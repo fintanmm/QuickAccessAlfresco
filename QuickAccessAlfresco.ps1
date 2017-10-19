@@ -16,8 +16,7 @@ function Build-Url([String] $urlParams="") {
 function Get-ListOfSites([String] $url) {
     $webclient = new-object System.Net.WebClient
     $webclient.UseDefaultCredentials=$true
-    return $webclient.DownloadString($url)  | ConvertFrom-Json
-    # return Invoke-WebRequest -Uri $url -TimeoutSec 10 | ConvertFrom-Json
+    return $webclient.DownloadString($url) | ConvertFrom-Json
 }
 
 function Create-HomeAndSharedLinks {
