@@ -77,9 +77,20 @@ Describe 'Create-Link' {
         $createLink | Should Not Be "False"
         $createLink.Description | Should Match $prependedJSON[0].description
     }    
+
+    Clean-Up @('Alfresco - Benchmark')
+
+    # FIXME: There is a side effect here, the title is prepended to when it shouldn't be
+    It "Should create a ftp Quick Access link to Alfresco." {
+        $createLink = Create-Link $convertedJSON[0] "Sites" "True"
+        $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match $convertedJSON[0].description
+    }
+
+    Clean-Up @('Alfresco - Benchmark')
 }
 
-Clean-Up @('Alfresco - Benchmark')
     
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {

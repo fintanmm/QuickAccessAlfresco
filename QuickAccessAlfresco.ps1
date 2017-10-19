@@ -26,7 +26,7 @@ function Create-HomeAndSharedLinks {
    return $links
 }
 
-function Create-Link($link, [String] $whatPath = "Sites") {
+function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
 
     if ($link.Count -eq 0) {
         return "False"
@@ -41,14 +41,24 @@ function Create-Link($link, [String] $whatPath = "Sites") {
     if (Test-Path $path) {
         return "False"
     }
-    $wshShell = New-Object -ComObject WScript.Shell
-    $shortcut = $wshShell.CreateShortcut("$path")
 
     $findPath = @{
         "Sites" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName + "\documentLibrary"; 
         "User Homes" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName;
         "Shared" = "\\$mapDomain\Alfresco\$whatPath";
     }
+
+    if ($useFTP -eq "True") {
+        $findPath = @{
+            "Sites" = "sftp://$mapDomain/Alfresco/$whatPath/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "sftp://$mapDomain/Alfresco/$whatPath" + $link.shortName;
+            "Shared" = "sftp://$mapDomain/Alfresco/$whatPath";
+        }
+    } 
+
+    $wshShell = New-Object -ComObject WScript.Shell
+    $shortcut = $wshShell.CreateShortcut("$path")
+
     $shortcut.TargetPath = $findPath.Get_Item($whatPath)
     $shortcut.Description = $link.description
     $shortcut.Save()
