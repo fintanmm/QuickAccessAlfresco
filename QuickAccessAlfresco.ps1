@@ -53,9 +53,12 @@ function Create-Link($link, [String] $whatPath = "Sites") {
     return $shortcut
 }
 
-function Create-QuickAccessLinks($links) {
+function Create-QuickAccessLinks($links, $prepend="") {
     $createdLinks = @()
     for($i = 0; $i -lt $links.Count; $i++) {
+        if ($prepend) {
+            $links[$i]["prepend"] = $prepend
+        }
         $addLink = Create-Link $links[$i]
         if ($addLink -ne "False") {
             $createdLinks += $addLink

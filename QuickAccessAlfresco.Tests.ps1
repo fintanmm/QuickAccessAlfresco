@@ -70,16 +70,16 @@ Describe 'Create-Link' {
     Clean-Up @("Home", "Shared", "Benchmark")
 
     It "Should pepend text to the Quick Access link to Alfresco." {
-        $convertedJSON[0]["prepend"] = "Alfresco - "
-        $createLink = Create-Link $convertedJSON[0]
+        $prependedJSON = $convertedJSON[0..3]
+        $prependedJSON[0]["prepend"] = "Alfresco - "
+        $createLink = Create-Link $prependedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $createLink | Should Not Be "False"
-        $createLink.Description | Should Match $convertedJSON[0].description
-
+        $createLink.Description | Should Match $prependedJSON[0].description
     }    
 }
 
-Clean-Up @("Alfresco - Benchmark")
+Clean-Up @('Alfresco - Benchmark')
     
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {
@@ -87,6 +87,19 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks[0].Description | Should Match $convertedJSON[0].description
         $createLinks[1].Description | Should Match $convertedJSON[1].description
     }
+    Clean-Up @('Alfresco - Benchmark', "Benchmark", "Recruitment")
+    
+    It "Should pepend text to all Quick Access links to sites within Alfresco" {
+        $createLinks = Create-QuickAccessLinks $convertedJSON "Alfresco - "
+        
+        $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
+        $benchmark | Should Not Be "False"
+        $createLinks[0].Description | Should Match $convertedJSON[0].description
+        
+        $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
+        $recruitment | Should Not Be "False"
+        $createLinks[1].Description | Should Match $convertedJSON[1].description
+    }
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 }
 
-Clean-Up @("Benchmark", "Recruitment")
