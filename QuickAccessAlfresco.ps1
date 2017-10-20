@@ -81,17 +81,6 @@ function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
     return $shortcut
 }
 
-function CreateCache {
-    $cacheExists = CacheExists
-    if ($cacheExists.Count -eq 0) {
-        $url = Build-Url
-        $sites = Get-ListOfSites -url $url
-        New-Item "$linkBaseDir\$($sites.Count).cache" -type file
-    }
-    $cacheExists = CacheExists
-    return $cacheExists
-}
-
 function CacheInit {
     $createCache = "False"
     $cacheExists = CacheExists
@@ -106,6 +95,17 @@ function CacheInit {
         }        
     }
     return $createCache
+}
+
+function CreateCache {
+    $cacheExists = CacheExists
+    if ($cacheExists.Count -eq 0) {
+        $url = Build-Url
+        $sites = Get-ListOfSites -url $url
+        New-Item "$linkBaseDir\$($sites.Count).cache" -type file
+    }
+    $cacheExists = CacheExists
+    return $cacheExists
 }
 
 function CacheExists {
