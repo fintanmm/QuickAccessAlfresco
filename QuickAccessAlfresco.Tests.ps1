@@ -135,3 +135,11 @@ Describe 'CacheExists' {
         $cacheExists.Name | Should be "5.cache"
     }
 }
+
+Describe 'CacheRemove' {
+    It "Should remove the cache if cache size changes." {
+        $cacheRemove = CacheRemove
+        $cacheRemove | Should be "True"
+    }
+    Clean-Up @('5') ".cache"
+}

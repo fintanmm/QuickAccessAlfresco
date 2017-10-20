@@ -95,3 +95,20 @@ function CreateCache {
     $cacheExists = CacheExists
     return $cacheExists
 }
+
+function CacheRemove {
+    $createCache = "False"
+    $cacheExists = CacheExists
+
+    if ($cacheExists.Name.Count) {
+        $createCache = "True"
+        $url = Build-Url
+        $sites = Get-ListOfSites -url "$url/index.json"
+        # Write-Host $sites
+        # if ($sites.Count -ne $cacheExists.Name.Split(".")[0]) {
+        #     Remove-Item "$linkBaseDir\$($sites.Count).cache"
+        #     $createCache = CreateCache
+        # }        
+    }
+    return $createCache
+}
