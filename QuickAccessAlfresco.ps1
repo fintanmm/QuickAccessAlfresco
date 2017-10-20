@@ -17,7 +17,8 @@ function Get-ListOfSites {
     Param([String] $url)
     $webclient = new-object System.Net.WebClient
     $webclient.UseDefaultCredentials=$true
-    return $webclient.DownloadString($url) | ConvertFrom-Json
+    $response = $webclient.DownloadString($url) | ConvertFrom-Json
+    return $response
 }
 
 function Create-HomeAndSharedLinks {
@@ -104,7 +105,6 @@ function CacheRemove {
         $createCache = "True"
         $url = Build-Url
         $sites = Get-ListOfSites -url "$url/index.json"
-        # Write-Host $sites
         # if ($sites.Count -ne $cacheExists.Name.Split(".")[0]) {
         #     Remove-Item "$linkBaseDir\$($sites.Count).cache"
         #     $createCache = CreateCache
