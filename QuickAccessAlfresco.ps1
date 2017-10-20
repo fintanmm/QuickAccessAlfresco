@@ -66,9 +66,9 @@ function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
 
     if ($useFTP -eq "True") {
         $findPath = @{
-            "Sites" = "sftp://$mapDomain/Alfresco/$whatPath/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "sftp://$mapDomain/Alfresco/$whatPath" + $link.shortName;
-            "Shared" = "sftp://$mapDomain/Alfresco/$whatPath";
+            "Sites" = "ftps://$mapDomain/Alfresco/$whatPath/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "ftps://$mapDomain/Alfresco/$whatPath" + $link.shortName;
+            "Shared" = "ftps://$mapDomain/Alfresco/$whatPath";
         }
     } 
 
