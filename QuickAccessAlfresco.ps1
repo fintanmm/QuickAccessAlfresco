@@ -92,7 +92,7 @@ function CreateCache {
     return $cacheExists
 }
 
-function CacheRemove {
+function CacheInit {
     $createCache = "False"
     $cacheExists = CacheExists
 

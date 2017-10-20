@@ -137,18 +137,18 @@ Describe 'CacheExists' {
     }
 }
 
-Describe 'CacheRemove' {
+Describe 'CacheInit' {
     It "Should not remove the cache if cache size doesn't change." {
-        $cacheRemove = CacheRemove
-        $cacheRemove | Should be "False"
+        $CacheInit = CacheInit
+        $CacheInit | Should be "False"
     }
     
     Clean-Up @('*') ".cache"
 
     It "Should remove the cache if cache size does change." {
         New-Item "$linkBaseDir\4.cache" -type file
-        $cacheRemove = CacheRemove
-        $cacheRemove.Name | Should Match "5.cache"
+        $CacheInit = CacheInit
+        $CacheInit.Name | Should Match "5.cache"
     }    
     Clean-Up @('5') ".cache"
 }
