@@ -102,13 +102,13 @@ function CacheRemove {
     $cacheExists = CacheExists
 
     if ($cacheExists.Name.Count) {
-        $createCache = "True"
         $url = Build-Url
         $sites = Get-ListOfSites -url "$url/index.json"
-        # if ($sites.Count -ne $cacheExists.Name.Split(".")[0]) {
-        #     Remove-Item "$linkBaseDir\$($sites.Count).cache"
-        #     $createCache = CreateCache
-        # }        
+        $howManySites = $cacheExists.Name.Split(".")[0]
+        if ($sites.Count -ne $howManySites) {
+            Remove-Item "$linkBaseDir\*.cache"
+            $createCache = CreateCache
+        }        
     }
     return $createCache
 }
