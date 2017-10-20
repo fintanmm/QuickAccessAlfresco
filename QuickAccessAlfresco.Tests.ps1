@@ -5,16 +5,17 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 .".\QuickAccessAlfresco.ps1"
 
 $whoAmI = $env:UserName
+$linkBaseDir = "$env:userprofile\Links"
 $url = "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
-function Clean-Up($links) {
+function Clean-Up($links, $fileExt = ".lnk") {
     # Clean up after test
     $testLink = "$env:userprofile\Links\"
     foreach($link in $links) {
-        if (Test-Path "$($testLink)$($link).lnk") {
-            Remove-Item "$($testLink)$($link).lnk"
+        if (Test-Path "$($testLink)$($link)$($fileExt)") {
+            Remove-Item "$($testLink)$($link)$($fileExt)"
         } else {
             Write-Host "Can not find $link"
         }
@@ -35,7 +36,7 @@ Describe 'Build-Url' {
 Describe 'Get-ListOfSites' {
     It "Should retrieve a list of sites for the currently logged in user." {
         $convertedObject = (Get-Content stub\sites.json)
-        Get-ListOfSites "$url/index.json" | Should Match $convertedJSON[0].title
+        Get-ListOfSites -url "$url/index.json" | Should Match $convertedJSON[0].title
     }
 }
 
@@ -114,3 +115,23 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 }
 
+Describe 'CreateCache' {
+    It "Should create cache if it doesn't exists." {
+        $createCache = CreateCache
+        $createCache.Count | Should be 2
+    }
+    Clean-Up @('5') ".cache"
+}
+
+Describe 'CacheExists' {
+    It "Should test that the cache doesn't exists." {
+        $cacheExists = CacheExists
+        $cacheExists.Count | Should be 0
+    }
+
+    It "Should test that the cache does exists." {
+        New-Item "$linkBaseDir\5.cache" -type file
+        $cacheExists = CacheExists
+        $cacheExists.Name | Should be "5.cache"
+    }
+}

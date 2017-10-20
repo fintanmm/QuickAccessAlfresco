@@ -13,7 +13,8 @@ function Build-Url([String] $urlParams="") {
     return $url
 }
 
-function Get-ListOfSites([String] $url) {
+function Get-ListOfSites {
+    Param([String] $url)
     $webclient = new-object System.Net.WebClient
     $webclient.UseDefaultCredentials=$true
     return $webclient.DownloadString($url) | ConvertFrom-Json
@@ -77,4 +78,20 @@ function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
     $shortcut.Description = $link.description
     $shortcut.Save()
     return $shortcut
+}
+
+function CacheExists {
+    $cacheFile = get-childitem "$linkBaseDir\*.cache" | Select-Object Name
+    return $cacheFile
+}
+
+function CreateCache {
+    $cacheExists = CacheExists
+    if ($cacheExists.Count -eq 0) {
+        $url = Build-Url
+        $sites = Get-ListOfSites -url $url
+        New-Item "$linkBaseDir\$($sites.Count).cache" -type file
+    }
+    $cacheExists = CacheExists
+    return $cacheExists
 }
