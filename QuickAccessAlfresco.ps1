@@ -77,6 +77,9 @@ function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
 
     $shortcut.TargetPath = $findPath.Get_Item($whatPath)
     $shortcut.Description = $link.description
+    if($link.contains("icon")){
+        $shortcut.IconLocation = "$linkBaseDir\alfresco_careers_icon.ico"
+    }    
     $shortcut.Save()
     return $shortcut
 }

@@ -82,8 +82,21 @@ Describe 'Create-Link' {
 
     Clean-Up @('Alfresco - Benchmark')
 
+    It "Should set an icon for the Quick Access link to Alfresco." {
+        $iconJSON = $convertedJSON[0..3]
+        $iconJSON[0]["icon"] = "$linkBaseDir\alfresco_careers_icon.ico"
+        $createLink = Create-Link $iconJSON[0] "Sites" "True"
+        $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
+        $createLink | Should Be $result
+        $createLink.Description | Should Match $iconJSON[0].description
+        $iconFile = $createLink.IconLocation.split(",")[0]
+        $iconFile | Should Be "$linkBaseDir\alfresco_careers_icon.ico"
+    }    
+
+    Clean-Up @('Alfresco - Benchmark')
+
     # FIXME: There is a side effect here, the title is prepended to when it shouldn't be
-    It "Should create a ftp Quick Access link to Alfresco." {
+    It "Should create a ftps Quick Access link to Alfresco." {
         $createLink = Create-Link $convertedJSON[0] "Sites" "True"
         $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"       
         $createLink | Should be $result
@@ -92,8 +105,7 @@ Describe 'Create-Link' {
 
     Clean-Up @('Alfresco - Benchmark')
 }
-
-    
+  
 Describe 'Create-QuickAccessLinks' {
     It "Should create all Quick Access links to sites within Alfresco" {
         $createLinks = Create-QuickAccessLinks $convertedJSON
