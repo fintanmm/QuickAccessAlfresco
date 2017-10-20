@@ -81,11 +81,6 @@ function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
     return $shortcut
 }
 
-function CacheExists {
-    $cacheFile = get-childitem "$linkBaseDir\*.cache" | Select-Object Name
-    return $cacheFile
-}
-
 function CreateCache {
     $cacheExists = CacheExists
     if ($cacheExists.Count -eq 0) {
@@ -111,4 +106,9 @@ function CacheRemove {
         }        
     }
     return $createCache
+}
+
+function CacheExists {
+    $cacheFile = get-childitem "$linkBaseDir\*.cache" | Select-Object Name
+    return $cacheFile
 }
