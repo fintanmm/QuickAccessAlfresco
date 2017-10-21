@@ -1,6 +1,7 @@
 $domainName = "localhost:8080"
 $mapDomain = "localhost"
 $linkBaseDir = "$env:userprofile\Links"
+$appData = "$env:APPDATA\QuickAccessLinks"
 $prependToLinkTitle = ""
 
 function Build-Url([String] $urlParams="") {
