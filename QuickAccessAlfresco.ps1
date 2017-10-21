@@ -113,9 +113,9 @@ function CacheSizeChanged {
     $sites = Get-ListOfSites -url "$url/index.json"
     $cacheExists = CacheExists
     [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
-    [int]$liveSitesCount = $sites.Count
+    [int]$countliveSites = $sites.Count
 
-    $cacheSizeChanged = ($liveSitesCount -ne $howManySitesCached)
+    $cacheSizeChanged = ($countliveSites -ne $howManySitesCached)
     
     return $cacheSizeChanged
 }
