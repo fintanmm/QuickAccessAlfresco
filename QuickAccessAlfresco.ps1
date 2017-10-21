@@ -34,14 +34,19 @@ function Create-HomeAndSharedLinks {
 
 function Create-QuickAccessLinks($links, $prepend="") {
     $createdLinks = @()
-    for($i = 0; $i -lt $links.Count; $i++) {
-        if ($prepend) {
-            $links[$i]["prepend"] = $prepend
+
+    $cacheExists = CacheExists
+    if (-not $cacheExists.Name.Count) {    
+        for($i = 0; $i -lt $links.Count; $i++) {
+            if ($prepend) {
+                $links[$i]["prepend"] = $prepend
+            }
+            $addLink = Create-Link $links[$i]
+            if ($addLink -ne "False") {
+                $createdLinks += $addLink
+            }
         }
-        $addLink = Create-Link $links[$i]
-        if ($addLink -ne "False") {
-            $createdLinks += $addLink
-        }
+        $createCache = CacheInit
     }    
     return $createdLinks
 }
@@ -93,17 +98,26 @@ function CacheInit {
     $cacheExists = CacheExists
 
     if ($cacheExists.Name.Count -ne 0) { # Check cache is current
-        $url = Build-Url
-        $sites = Get-ListOfSites -url "$url/index.json"
-        [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
-        [int]$liveSitesCount = $sites.Count
+        $cacheSizeChanged = CacheSizeChanged
 
-        if ($liveSitesCount -ne $howManySitesCached) {
+        if ($cacheSizeChanged) {
             Remove-Item "$linkBaseDir\*.cache"
             $createCache = CreateCache
         }        
     }
     return $createCache
+}
+
+function CacheSizeChanged {
+    $url = Build-Url
+    $sites = Get-ListOfSites -url "$url/index.json"
+    $cacheExists = CacheExists
+    [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
+    [int]$liveSitesCount = $sites.Count
+
+    $cacheSizeChanged = ($liveSitesCount -ne $howManySitesCached)
+    
+    return $cacheSizeChanged
 }
 
 function CreateCache {
