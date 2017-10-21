@@ -8,6 +8,7 @@ $whoAmI = $env:UserName
 $linkBaseDir = "$env:userprofile\Links"
 $url = "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
+$convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
 function Clean-Up($links, $fileExt = ".lnk") {
@@ -119,24 +120,24 @@ Describe 'Create-Link' {
 Describe 'Create-QuickAccessLinks' {
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
         New-Item "$linkBaseDir\5.cache" -type file
-        $createLinks = Create-QuickAccessLinks $convertedJSON
+        $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
     }
 
     Clean-Up @('*') ".cache"
 
-    # It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
-    #     $createLinks = Create-QuickAccessLinks $convertedJSON
-    #     $createLinks[0].Description | Should Match $convertedJSON[0].description
-    #     $createLinks[1].Description | Should Match $convertedJSON[1].description
-    #     Clean-Up @('*') ".cache"    
-    #     New-Item "$linkBaseDir\4.cache" -type file
-    #     $createLinks = Create-QuickAccessLinks $convertedJSON
-    #     $createLinks.Count | Should Be 2
-    # }
+    It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
+        New-Item "$linkBaseDir\5.cache" -type file
+        $createLinks = Create-QuickAccessLinks $convertedCachedJSON
+        $createLinks.Count | Should Be 0
+        Clean-Up @('*') ".cache"    
+        New-Item "$linkBaseDir\2.cache" -type file
+        $createLinks = Create-QuickAccessLinks $convertedJSON
+        $createLinks.Count | Should Be 2
+    }
 
-    # Clean-Up @('*') ".cache"    
-    # Clean-Up @('Alfresco - Benchmark', "Benchmark", "Recruitment")
+    Clean-Up @('*') ".cache"    
+    Clean-Up @('Alfresco - Benchmark', "Benchmark", "Recruitment")
 
     It "Should create all Quick Access links to sites within Alfresco" {
         $createLinks = Create-QuickAccessLinks $convertedJSON
@@ -200,8 +201,14 @@ Describe 'CacheSizeChanged' {
     It "Should detect if the is a change in the size of the cache." {
         New-Item "$linkBaseDir\4.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
-        Write-Host $cacheSizeChanged
-        # $cacheSizeChanged | Should Match "5.cache"        
+        $cacheSizeChanged | Should Match "True"       
     }
-    Clean-Up @('*') ".cache"    
+    Clean-Up @('*') ".cache"
+
+    It "Should detect if the cache is the same size." {
+        New-Item "$linkBaseDir\5.cache" -type file
+        $cacheSizeChanged = CacheSizeChanged
+        $cacheSizeChanged | Should Match "False"       
+    }
+    Clean-Up @('*') ".cache"
 }

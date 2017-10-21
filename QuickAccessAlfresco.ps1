@@ -35,8 +35,8 @@ function Create-HomeAndSharedLinks {
 function Create-QuickAccessLinks($links, $prepend="") {
     $createdLinks = @()
 
-    $cacheExists = CacheExists
-    if (-not $cacheExists.Name.Count) {    
+    $cacheSizeChanged = CacheSizeChanged
+    if ($cacheSizeChanged) {    
         for($i = 0; $i -lt $links.Count; $i++) {
             if ($prepend) {
                 $links[$i]["prepend"] = $prepend
@@ -112,7 +112,10 @@ function CacheSizeChanged {
     $url = Build-Url
     $sites = Get-ListOfSites -url "$url/index.json"
     $cacheExists = CacheExists
-    [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
+    $howManySitesCached = 0
+    if ($cacheExists.Name.Count -ne 0) {
+        [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
+    }
     [int]$countliveSites = $sites.Count
 
     $cacheSizeChanged = ($countliveSites -ne $howManySitesCached)
