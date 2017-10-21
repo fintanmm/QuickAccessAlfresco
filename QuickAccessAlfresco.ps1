@@ -32,7 +32,7 @@ function Create-HomeAndSharedLinks {
    return $links
 }
 
-function Create-QuickAccessLinks($links, $prepend="") {
+function Create-QuickAccessLinks($links, $prepend="", $icon="") {
     $createdLinks = @()
 
     $cacheSizeChanged = CacheSizeChanged
@@ -41,6 +41,9 @@ function Create-QuickAccessLinks($links, $prepend="") {
             if ($prepend) {
                 $links[$i]["prepend"] = $prepend
             }
+            if ($icon) {
+                $links[$i]["icon"] = $icon
+            }            
             $addLink = Create-Link $links[$i]
             if ($addLink -ne "False") {
                 $createdLinks += $addLink

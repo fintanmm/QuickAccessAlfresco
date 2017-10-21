@@ -158,6 +158,21 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks[1].Description | Should Match $convertedJSON[1].description
     }
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
+
+    It "Should add an icon to all Quick Access links to sites within Alfresco" {
+        $createLinks = Create-QuickAccessLinks $convertedJSON "" "$linkBaseDir\alfresco_careers_icon.ico"
+        
+        $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
+        $benchmark | Should Not Be "False"
+        $icon = $createLinks[0].IconLocation.split(",")[0]
+        $icon | Should be "$linkBaseDir\alfresco_careers_icon.ico"
+        
+        $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
+        $recruitment | Should Not Be "False"
+        $icon = $createLinks[1].IconLocation.split(",")[0]
+        $icon | Should be "$linkBaseDir\alfresco_careers_icon.ico"
+    }
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")    
 }
 
 Describe 'CreateCache' {
