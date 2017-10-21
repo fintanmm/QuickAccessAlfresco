@@ -24,6 +24,15 @@ function Clean-Up($links, $fileExt = ".lnk") {
     }
 }
 
+Describe "Create-AppData" {
+    It "Should create the AppData folder for QuickAccessAlfresco" {
+        $createAppData = Create-AppData
+        $doesAppDataExist = Test-Path $appData
+        $createAppData | Should be $doesAppDataExist
+    }
+    Remove-Item "$($appData)"
+}
+
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should -Be $url

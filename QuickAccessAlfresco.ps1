@@ -4,6 +4,10 @@ $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
 $prependToLinkTitle = ""
 
+function Create-AppData {
+    New-Item -ItemType Directory -Force -Path $appData
+}
+
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
     $url = "http://$domainName/alfresco/service/api/people/$whoAmI/sites/"
