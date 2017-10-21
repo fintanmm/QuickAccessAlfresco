@@ -42,13 +42,23 @@ Describe 'Get-ListOfSites' {
 }
 
 Describe 'Create-HomeAndSharedLinks' {
-    It "Should create links for the user home and shared" {
+    It "Should not create links for the user home and shared because of the cache." {
+        New-Item "$linkBaseDir\5.cache" -type file
+        $createHomeAndShared = Create-HomeAndSharedLinks 
+        $createHomeAndShared.Count | Should be 0
+    }
+    
+    Clean-Up @('*') ".cache"
+
+    It "Should create links for the user home and shared." {
         $createHomeAndShared = Create-HomeAndSharedLinks 
         $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
         $createHomeAndShared[0].TargetPath | Should Be "\\localhost\Alfresco\User Homes\$whoAmI"
         $createHomeAndShared[1].Description | Should Match $homeAndShared[1].description
         $createHomeAndShared[1].TargetPath | Should Be "\\localhost\Alfresco\Shared"
     }
+
+    Clean-Up @('*') ".cache"
 }
 
 Describe 'Create-Link' {
@@ -133,7 +143,7 @@ Describe 'CreateCache' {
         $createCache = CreateCache
         $createCache.Count | Should be 2
     }
-    Clean-Up @('5') ".cache"
+    Clean-Up @('*') ".cache"
 }
 
 Describe 'CacheExists' {
@@ -162,5 +172,5 @@ Describe 'CacheInit' {
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
     }    
-    Clean-Up @('5') ".cache"
+    Clean-Up @('*') ".cache"
 }

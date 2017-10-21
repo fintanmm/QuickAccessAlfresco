@@ -23,8 +23,12 @@ function Get-ListOfSites {
 
 function Create-HomeAndSharedLinks {
    $links = @{}
-   $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes"
-   $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared"
+   $cacheExists = CacheExists
+   if (-not $cacheExists.Name.Count) {
+        $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes"
+        $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared"
+        $createCache = CacheInit
+   }
    return $links
 }
 
@@ -88,11 +92,13 @@ function CacheInit {
     $createCache = "False"
     $cacheExists = CacheExists
 
-    if ($cacheExists.Name.Count) {
+    if ($cacheExists.Name.Count -ne 0) { # Check cache is current
         $url = Build-Url
         $sites = Get-ListOfSites -url "$url/index.json"
-        $howManySites = $cacheExists.Name.Split(".")[0]
-        if ($sites.Count -ne $howManySites) {
+        [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
+        [int]$liveSitesCount = $sites.Count
+
+        if ($liveSitesCount -ne $howManySitesCached) {
             Remove-Item "$linkBaseDir\*.cache"
             $createCache = CreateCache
         }        
@@ -102,7 +108,7 @@ function CacheInit {
 
 function CreateCache {
     $cacheExists = CacheExists
-    if ($cacheExists.Count -eq 0) {
+    if ($cacheExists.Name.Count -eq 0) {
         $url = Build-Url
         $sites = Get-ListOfSites -url $url
         New-Item "$linkBaseDir\$($sites.Count).cache" -type file
