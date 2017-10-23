@@ -108,7 +108,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     $shortcut.TargetPath = $fullPath
     $shortcut.Description = $link.description
     if($link.contains("icon")){
-        $shortcut.IconLocation = "$linkBaseDir\alfresco_careers_icon.ico"
+        $shortcut.IconLocation = "$appData\alfresco_careers_icon.ico"
     }    
     $shortcut.Save()
     return $shortcut

@@ -118,13 +118,13 @@ Describe 'Create-Link' {
 
     It "Should set an icon for the Quick Access link to Alfresco." {
         $iconJSON = $convertedJSON[0..3]
-        $iconJSON[0]["icon"] = "$linkBaseDir\alfresco_careers_icon.ico"
+        $iconJSON[0]["icon"] = "$appData\alfresco_careers_icon.ico"
         $createLink = Create-Link $iconJSON[0] "Sites" "True"
         $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $createLink | Should Be $result
         $createLink.Description | Should Match $iconJSON[0].description
         $iconFile = $createLink.IconLocation.split(",")[0]
-        $iconFile | Should Be "$linkBaseDir\alfresco_careers_icon.ico"
+        $iconFile | Should Be "$appData\alfresco_careers_icon.ico"
     }    
 
     Clean-Up @('Alfresco - Benchmark')
@@ -233,17 +233,17 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 
     It "Should add an icon to all Quick Access links to sites within Alfresco" {
-        $createLinks = Create-QuickAccessLinks $convertedJSON "" "$linkBaseDir\alfresco_careers_icon.ico"
+        $createLinks = Create-QuickAccessLinks $convertedJSON "" "$appData\alfresco_careers_icon.ico"
         
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $benchmark | Should Not Be "False"
         $icon = $createLinks[0].IconLocation.split(",")[0]
-        $icon | Should be "$linkBaseDir\alfresco_careers_icon.ico"
+        $icon | Should be "$appData\alfresco_careers_icon.ico"
         
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
         $recruitment | Should Not Be "False"
         $icon = $createLinks[1].IconLocation.split(",")[0]
-        $icon | Should be "$linkBaseDir\alfresco_careers_icon.ico"
+        $icon | Should be "$appData\alfresco_careers_icon.ico"
     }
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")    
 }
