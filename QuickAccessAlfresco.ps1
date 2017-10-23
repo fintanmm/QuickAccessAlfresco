@@ -122,7 +122,7 @@ function CacheInit {
         $cacheSizeChanged = CacheSizeChanged
 
         if ($cacheSizeChanged) {
-            Remove-Item "$linkBaseDir\*.cache"
+            Remove-Item "$appData\*.cache"
             $createCache = CreateCache
         }        
     }
@@ -149,13 +149,13 @@ function CreateCache {
     if ($cacheExists.Name.Count -eq 0) {
         $url = Build-Url
         $sites = Get-ListOfSites -url $url
-        New-Item "$linkBaseDir\$($sites.Count).cache" -type file
+        New-Item "$appData\$($sites.Count).cache" -type file
     }
     $cacheExists = CacheExists
     return $cacheExists
 }
 
 function CacheExists {
-    $cacheFile = get-childitem "$linkBaseDir\*.cache" | Select-Object Name
+    $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name
     return $cacheFile
 }

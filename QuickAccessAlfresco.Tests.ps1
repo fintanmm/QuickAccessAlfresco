@@ -12,14 +12,27 @@ $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is fo
 $convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
+
+function setUp {$appData
+    New-Item -ItemType Directory -Force -Path $appData
+}
+
 function Clean-Up($links, $fileExt = ".lnk") {
     # Clean up after test
     $testLink = "$env:userprofile\Links\"
     foreach($link in $links) {
-        if (Test-Path "$($testLink)$($link)$($fileExt)") {
-            Remove-Item "$($testLink)$($link)$($fileExt)"
+        if ($fileExt -eq ".lnk") {
+            if (Test-Path "$($testLink)$($link)$($fileExt)") {
+                Remove-Item "$($testLink)$($link)$($fileExt)"
+            } else {
+                Write-Host "Can not find $link"
+            }
         } else {
-            Write-Host "Can not find $link"
+            if (Test-Path "$($appData)\$($link)$($fileExt)") {
+                Remove-Item "$($appData)\$($link)$($fileExt)"
+            } else {
+                Write-Host "Can not find $link"
+            }            
         }
     }
 }
@@ -30,7 +43,7 @@ Describe "Create-AppData" {
         $doesAppDataExist = Test-Path $appData
         $createAppData | Should be $doesAppDataExist
     }
-    Remove-Item "$($appData)"
+    #Remove-Item "$($appData)"
 }
 
 Describe 'Build-Url' {
@@ -54,7 +67,7 @@ Describe 'Get-ListOfSites' {
 
 Describe 'Create-HomeAndSharedLinks' {
     It "Should not create links for the user home and shared because of the cache." {
-        New-Item "$linkBaseDir\5.cache" -type file
+        New-Item "$appData\5.cache" -type file
         $createHomeAndShared = Create-HomeAndSharedLinks 
         $createHomeAndShared.Count | Should be 0
     }
@@ -179,7 +192,7 @@ Describe 'Create-Link' {
   
 Describe 'Create-QuickAccessLinks' {
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
-        New-Item "$linkBaseDir\5.cache" -type file
+        New-Item "$appData\5.cache" -type file
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
     }
@@ -187,11 +200,11 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('*') ".cache"
 
     It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
-        New-Item "$linkBaseDir\5.cache" -type file
+        New-Item "$appData\5.cache" -type file
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
         Clean-Up @('*') ".cache"    
-        New-Item "$linkBaseDir\2.cache" -type file
+        New-Item "$appData\2.cache" -type file
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks.Count | Should Be 2
     }
@@ -250,7 +263,7 @@ Describe 'CacheExists' {
     }
 
     It "Should test that the cache does exists." {
-        New-Item "$linkBaseDir\5.cache" -type file
+        New-Item "$appData\5.cache" -type file
         $cacheExists = CacheExists
         $cacheExists.Name | Should be "5.cache"
     }
@@ -265,7 +278,7 @@ Describe 'CacheInit' {
     Clean-Up @('*') ".cache"
 
     It "Should remove the cache if cache size does change." {
-        New-Item "$linkBaseDir\4.cache" -type file
+        New-Item "$appData\4.cache" -type file
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
     }    
@@ -274,14 +287,14 @@ Describe 'CacheInit' {
 
 Describe 'CacheSizeChanged' {
     It "Should detect if the is a change in the size of the cache." {
-        New-Item "$linkBaseDir\4.cache" -type file
+        New-Item "$appData\4.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
         $cacheSizeChanged | Should Match "True"       
     }
     Clean-Up @('*') ".cache"
 
     It "Should detect if the cache is the same size." {
-        New-Item "$linkBaseDir\5.cache" -type file
+        New-Item "$appData\5.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
         $cacheSizeChanged | Should Match "False"       
     }
