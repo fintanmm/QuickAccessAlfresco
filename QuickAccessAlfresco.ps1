@@ -59,7 +59,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
     return $createdLinks
 }
 
-function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
+function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     if ($link.Count -eq 0) {
         return "False"
@@ -81,18 +81,31 @@ function Create-Link($link, [String] $whatPath = "Sites", $useFTP="False") {
         "Shared" = "\\$mapDomain\Alfresco\$whatPath";
     }
 
-    if ($useFTP -eq "True") {
+    if ($protocol -eq "ftps") {
         $findPath = @{
-            "Sites" = "ftps://$mapDomain/Alfresco/$whatPath/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "ftps://$mapDomain/Alfresco/$whatPath" + $link.shortName;
-            "Shared" = "ftps://$mapDomain/Alfresco/$whatPath";
+            "Sites" = "ftps://$mapDomain/alfresco/$whatPath/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "ftps://$mapDomain/alfresco/$whatPath/" + $link.shortName;
+            "Shared" = "ftps://$mapDomain/alfresco/$whatPath";
         }
     } 
+    if ($protocol -eq "https") {
+        $findPath = @{
+            "Sites" = "https://$mapDomain/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "https://$mapDomain/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
+            "Shared" = "https://$mapDomain/alfresco/webdav/$($whatPath.ToLower())";
+        }
+    }     
+
+    $fullPath = $findPath.Get_Item($whatPath)
+
+    if ($fullPath.length -eq 0) {
+        return "False"
+    }
 
     $wshShell = New-Object -ComObject WScript.Shell
     $shortcut = $wshShell.CreateShortcut("$path")
 
-    $shortcut.TargetPath = $findPath.Get_Item($whatPath)
+    $shortcut.TargetPath = $fullPath
     $shortcut.Description = $link.description
     if($link.contains("icon")){
         $shortcut.IconLocation = "$linkBaseDir\alfresco_careers_icon.ico"

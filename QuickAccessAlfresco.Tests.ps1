@@ -117,14 +117,64 @@ Describe 'Create-Link' {
     Clean-Up @('Alfresco - Benchmark')
 
     # FIXME: There is a side effect here, the title is prepended to when it shouldn't be
-    It "Should create a ftps Quick Access link to Alfresco." {
-        $createLink = Create-Link $convertedJSON[0] "Sites" "True"
+    It "Should create a ftps Quick Access link to an Alfresco site." {
+        $createLink = Create-Link $convertedJSON[0] "Sites" "ftps"
         $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
     }
 
     Clean-Up @('Alfresco - Benchmark')
+
+    It "Should create a ftps Quick Access link to user home." {
+        $createLink = Create-Link $homeAndShared[0] "User Homes" "ftps"
+        $result = Test-Path "$env:userprofile\Links\Home.lnk"
+        $createLink | Should be $result
+        $createLink.Description | Should Match "My Files"
+    }
+
+    Clean-Up @('Home') 
+
+    It "Should create a ftps Quick Access link to Shared." {
+        $createLink = Create-Link $homeAndShared[1] "shared" "ftps"
+        $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match "Shared Files"
+    }
+
+    Clean-Up @('Shared')           
+
+    It "Should create a WebDav Quick Access link to an Alfresco site." {
+        $createLink = Create-Link $convertedJSON[0] "Sites" "https"
+        $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match $convertedJSON[0].description
+    }
+
+    Clean-Up @('Alfresco - Benchmark') 
+
+    It "Should create a WebDav Quick Access link to user home." {
+        $createLink = Create-Link $homeAndShared[0] "User Homes" "https"
+        $result = Test-Path "$env:userprofile\Links\Home.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match "My Files"
+    }
+
+    Clean-Up @('Home')
+
+    It "Should create a WebDav Quick Access link to Shared." {
+        $createLink = Create-Link $homeAndShared[1] "shared" "https"
+        $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match "Shared Files"
+    }
+
+    Clean-Up @('Shared')  
+
+    It "Should not create any link to Alfresco because the path is wrong." {
+        $createLink = Create-Link $homeAndShared[1] "wrongPath"
+        $createLink | Should be "False"
+    }
 }
   
 Describe 'Create-QuickAccessLinks' {
