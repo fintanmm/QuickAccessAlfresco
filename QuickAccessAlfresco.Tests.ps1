@@ -13,7 +13,7 @@ $convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
 
-function setUp {$appData
+function setUp {
     New-Item -ItemType Directory -Force -Path $appData
 }
 
