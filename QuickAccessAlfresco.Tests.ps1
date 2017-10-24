@@ -1,4 +1,4 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
@@ -44,6 +44,21 @@ Describe "Create-AppData" {
         $createAppData | Should be $doesAppDataExist
     }
     #Remove-Item "$($appData)"
+}
+
+Describe "CopyIcon" {
+    It "Should copy the icon to the user appData folder." {
+        $doesIconExist = Test-Path "$appData\alfresco_careers_icon.ico"
+        $copyIcon = CopyIcon ".\alfresco_careers_icon.ico"
+        $copyIcon | Should be "True"
+    }
+
+    It "Should not copy the icon to the user appData folder." {
+        $doesIconExist = Test-Path "$appData\alfresco_careers_icon.ico"
+        $copyIcon = CopyIcon ".\alfresco_careers_icon.ico"
+        $copyIcon | Should be "False"
+    }    
+    Clean-Up @('*') ".ico"
 }
 
 Describe 'Build-Url' {

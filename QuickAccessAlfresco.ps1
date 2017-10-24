@@ -8,6 +8,15 @@ function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }
 
+function CopyIcon($icon="") {
+    $testPath = (-Not (Test-Path "$appData\$icon"))
+    if ($icon -And $testPath) {
+        Copy-Item $icon "$appData\"
+        return "True"
+    }
+    return "False"
+}
+
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
     $url = "http://$domainName/alfresco/service/api/people/$whoAmI/sites/"
