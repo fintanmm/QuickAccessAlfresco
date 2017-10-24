@@ -144,6 +144,19 @@ function CacheSizeChanged {
     return $cacheSizeChanged
 }
 
+function CacheTimeChange([datetime] $lastWriteTime, $index="") {
+
+    $countliveSites = 0
+    $timespan = new-timespan -minutes 10
+    
+    if (((get-date) - $lastWriteTime) -gt $timespan) {
+        $url = Build-Url
+        $sites = Get-ListOfSites -url "$url/index.json"
+        [int]$countliveSites = $sites.Count
+    }
+    return $countliveSites
+}
+
 function CreateCache {
     $cacheExists = CacheExists
     if ($cacheExists.Name.Count -eq 0) {
@@ -156,6 +169,6 @@ function CreateCache {
 }
 
 function CacheExists {
-    $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name
+    $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name, LastWriteTime
     return $cacheFile
 }

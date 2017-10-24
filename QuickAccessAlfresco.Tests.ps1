@@ -286,7 +286,7 @@ Describe 'CacheInit' {
 }
 
 Describe 'CacheSizeChanged' {
-    It "Should detect if the is a change in the size of the cache." {
+    It "Should detect if there is a change in the size of the cache." {
         New-Item "$appData\4.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
         $cacheSizeChanged | Should Match "True"       
@@ -299,4 +299,22 @@ Describe 'CacheSizeChanged' {
         $cacheSizeChanged | Should Match "False"       
     }
     Clean-Up @('*') ".cache"
+}
+
+Describe "CacheTimeChange" {
+    It "Should detect if the cache has been modified in the last 10 minutes. If so do a web request." {
+        $lastWriteTime = [datetime]"1/2/14 00:00:00"
+        $timespan = new-timespan -minutes 10
+        Write-Host (((get-date) - $lastWriteTime) -gt $timespan)
+        $cacheTimeChange = CacheTimeChange $lastWriteTime
+        $cacheTimeChange | Should Be 5
+    }
+
+    It "Should detect if the cache has been modified in the last 10 minutes. If so do not do a web request." {
+        $lastWriteTime = get-date
+        $timespan = new-timespan -minutes 10
+        Write-Host (((get-date) - $lastWriteTime) -gt $timespan)
+        $cacheTimeChange = CacheTimeChange $lastWriteTime
+        $cacheTimeChange | Should Be 0
+    }    
 }
