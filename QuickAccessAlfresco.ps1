@@ -130,25 +130,26 @@ function CacheInit {
 }
 
 function CacheSizeChanged {
-    $url = Build-Url
-    $sites = Get-ListOfSites -url "$url/index.json"
     $cacheExists = CacheExists
     $howManySitesCached = 0
     if ($cacheExists.Name.Count -ne 0) {
         [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
     }
-    [int]$countliveSites = $sites.Count
-
+    $countliveSites = CacheTimeChange $cacheExists $howManySitesCached
     $cacheSizeChanged = ($countliveSites -ne $howManySitesCached)
     
     return $cacheSizeChanged
 }
 
-function CacheTimeChange([datetime] $lastWriteTime, $index="") {
+function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
 
-    $countliveSites = 0
+    if ($lastWriteTime -ne "") {
+        $lastWriteTime = $lastWriteTime.LastWriteTime
+    } else {
+        $lastWriteTime = get-date
+    }
+
     $timespan = new-timespan -minutes 10
-    
     if (((get-date) - $lastWriteTime) -gt $timespan) {
         $url = Build-Url
         $sites = Get-ListOfSites -url "$url/index.json"

@@ -203,7 +203,8 @@ Describe 'Create-QuickAccessLinks' {
         New-Item "$appData\5.cache" -type file
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
-        Clean-Up @('*') ".cache"    
+        Clean-Up @('*') ".cache"
+        Mock CacheTimeChange {return 5}
         New-Item "$appData\2.cache" -type file
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks.Count | Should Be 2
@@ -213,6 +214,7 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Benchmark", "Recruitment")
 
     It "Should create all Quick Access links to sites within Alfresco" {
+        Mock CacheTimeChange {return 5}
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks[0].Description | Should Match $convertedJSON[0].description
         $createLinks[1].Description | Should Match $convertedJSON[1].description
@@ -220,6 +222,7 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Benchmark", "Recruitment")
     
     It "Should pepend text to all Quick Access links to sites within Alfresco" {
+        Mock CacheTimeChange {return 5}
         $createLinks = Create-QuickAccessLinks $convertedJSON "Alfresco - "
         
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
@@ -271,6 +274,7 @@ Describe 'CacheExists' {
 
 Describe 'CacheInit' {
     It "Should not remove the cache if cache size doesn't change." {
+        Mock CacheTimeChange {return 5}
         $CacheInit = CacheInit
         $CacheInit | Should be "False"
     }
@@ -278,6 +282,7 @@ Describe 'CacheInit' {
     Clean-Up @('*') ".cache"
 
     It "Should remove the cache if cache size does change." {
+        # Mock CacheTimeChange {return 4}
         New-Item "$appData\4.cache" -type file
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
@@ -287,6 +292,7 @@ Describe 'CacheInit' {
 
 Describe 'CacheSizeChanged' {
     It "Should detect if there is a change in the size of the cache." {
+        Mock CacheTimeChange {return 5}
         New-Item "$appData\4.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
         $cacheSizeChanged | Should Match "True"       
@@ -303,18 +309,19 @@ Describe 'CacheSizeChanged' {
 
 Describe "CacheTimeChange" {
     It "Should detect if the cache has been modified in the last 10 minutes. If so do a web request." {
-        $lastWriteTime = [datetime]"1/2/14 00:00:00"
-        $timespan = new-timespan -minutes 10
-        Write-Host (((get-date) - $lastWriteTime) -gt $timespan)
-        $cacheTimeChange = CacheTimeChange $lastWriteTime
+        $lastWriteTime = @{"LastWriteTime" = [datetime]"1/2/14 00:00:00";}
+        $cacheTimeChange = CacheTimeChange $lastWriteTime 5
         $cacheTimeChange | Should Be 5
     }
 
     It "Should detect if the cache has been modified in the last 10 minutes. If so do not do a web request." {
-        $lastWriteTime = get-date
-        $timespan = new-timespan -minutes 10
-        Write-Host (((get-date) - $lastWriteTime) -gt $timespan)
+        $lastWriteTime = @{"LastWriteTime" = get-date;}
         $cacheTimeChange = CacheTimeChange $lastWriteTime
+        $cacheTimeChange | Should Be 0
+    }    
+
+    It "Should detect if no date is passed to the function. If so do not do a web request." {
+        $cacheTimeChange = CacheTimeChange ""
         $cacheTimeChange | Should Be 0
     }    
 }
