@@ -7,10 +7,10 @@ Should be deployed using GPO.
 ## Running 
 Edit bootstrapQuickAccessAlfresco.bat and append the desired params.
 
-powershell -executionpolicy bypass -file \\path\to\QuickAccessAlfresco.ps1 -domainName "mydomain.com" -mapDomain "ifmydomainisdiff.com" -prependText "Alfresco Site - " -icon "\\path\to\icon.ico"
+`powershell -executionpolicy bypass -file \\path\to\QuickAccessAlfresco.ps1 -domainName "mydomain.com" -mapDomain "ifmydomainisdiff.com" -prependText "Alfresco Site - " -icon "\\path\to\icon.ico"`
 
 ## Todo
-Strip out hardcoded values.
-Test Kerberos.
-An init function to process params set by the bootstrap script.
-Create and enable schedule.
+- [ ] Strip out hardcoded values.
+- [ ] Test Kerberos.
+- [ ] An init function to process params set by the bootstrap script.
+- [ ] Create and enable schedule.
