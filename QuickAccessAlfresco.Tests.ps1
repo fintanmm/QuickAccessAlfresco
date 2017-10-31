@@ -329,7 +329,7 @@ Describe "CacheTimeChange" {
         $cacheTimeChange | Should Be 5
     }
 
-    It "Should detect if the cache has been modified in the last 10 minutes. If so do not do a web request." {
+    It "Should detect if the cache has not been modified in the last 10 minutes. If so do not do a web request." {
         $lastWriteTime = @{"LastWriteTime" = get-date;}
         $cacheTimeChange = CacheTimeChange $lastWriteTime
         $cacheTimeChange | Should Be 0
