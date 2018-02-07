@@ -1,4 +1,4 @@
-$domainName = "localhost:8080"
+$domainName = "localhost:8443"
 $mapDomain = "localhost"
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
@@ -19,7 +19,7 @@ function CopyIcon($icon="") {
 
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
-    $url = "http://$domainName/alfresco/service/api/people/$whoAmI/sites/"
+    $url = "https://$domainName/alfresco/service/api/people/$whoAmI/sites/"
     
     if ($urlParams) {
         $url = "$($url)?$($urlParams)"
@@ -117,7 +117,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     $shortcut.TargetPath = $fullPath
     $shortcut.Description = $link.description
     if($link.contains("icon")){
-        $shortcut.IconLocation = "$appData\alfresco_careers_icon.ico"
+        $shortcut.IconLocation = "$appData\quickaccess_icon.ico"
     }    
     $shortcut.Save()
     return $shortcut
@@ -161,7 +161,7 @@ function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
     $timespan = new-timespan -minutes 10
     if (((get-date) - $lastWriteTime) -gt $timespan) {
         $url = Build-Url
-        $sites = Get-ListOfSites -url "$url/index.json"
+        $sites = Get-ListOfSites -url "$url/sites.json"
         [int]$countliveSites = $sites.Count
     }
     return $countliveSites

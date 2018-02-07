@@ -7,7 +7,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $whoAmI = $env:UserName
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
-$url = "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/"
+$url = "https://localhost:8443/alfresco/service/api/people/$whoAmI/sites/"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
@@ -48,14 +48,14 @@ Describe "Create-AppData" {
 
 Describe "CopyIcon" {
     It "Should copy the icon to the user appData folder." {
-        $doesIconExist = Test-Path "$appData\alfresco_careers_icon.ico"
-        $copyIcon = CopyIcon ".\alfresco_careers_icon.ico"
+        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
+        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
         $copyIcon | Should be "True"
     }
 
     It "Should not copy the icon to the user appData folder." {
-        $doesIconExist = Test-Path "$appData\alfresco_careers_icon.ico"
-        $copyIcon = CopyIcon ".\alfresco_careers_icon.ico"
+        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
+        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
         $copyIcon | Should be "False"
     }    
     Clean-Up @('*') ".ico"
@@ -63,19 +63,19 @@ Describe "CopyIcon" {
 
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
-    Build-Url | Should -Be $url
+    Build-Url | Should Be $url
   }
 
   It "Should build the URL for connecting to Alfresco with paramaters prepended." {
     $urlWithParams = Build-Url "hello=world"
-    $urlWithParams | Should -Be "http://localhost:8080/alfresco/service/api/people/$whoAmI/sites/?hello=world"
+    $urlWithParams | Should Be "https://localhost:8443/alfresco/service/api/people/$whoAmI/sites/?hello=world"
   }
 }
 
 Describe 'Get-ListOfSites' {
     It "Should retrieve a list of sites for the currently logged in user." {
         $convertedObject = (Get-Content stub\sites.json)
-        $sites = Get-ListOfSites -url "$url/index.json"
+        $sites = Get-ListOfSites -url "$url/sites.json"
         $sites[0].title | Should Match $convertedJSON[0].title
     }
 }
@@ -133,13 +133,13 @@ Describe 'Create-Link' {
 
     It "Should set an icon for the Quick Access link to Alfresco." {
         $iconJSON = $convertedJSON[0..3]
-        $iconJSON[0]["icon"] = "$appData\alfresco_careers_icon.ico"
+        $iconJSON[0]["icon"] = "$appData\quickaccess_icon.ico"
         $createLink = Create-Link $iconJSON[0] "Sites" "True"
         $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $createLink | Should Be $result
         $createLink.Description | Should Match $iconJSON[0].description
         $iconFile = $createLink.IconLocation.split(",")[0]
-        $iconFile | Should Be "$appData\alfresco_careers_icon.ico"
+        $iconFile | Should Be "$appData\quickaccess_icon.ico"
     }    
 
     Clean-Up @('Alfresco - Benchmark')
@@ -251,17 +251,17 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 
     It "Should add an icon to all Quick Access links to sites within Alfresco" {
-        $createLinks = Create-QuickAccessLinks $convertedJSON "" "$appData\alfresco_careers_icon.ico"
+        $createLinks = Create-QuickAccessLinks $convertedJSON "" "$appData\quickaccess_icon.ico"
         
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $benchmark | Should Not Be "False"
         $icon = $createLinks[0].IconLocation.split(",")[0]
-        $icon | Should be "$appData\alfresco_careers_icon.ico"
+        $icon | Should be "$appData\quickaccess_icon.ico"
         
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
         $recruitment | Should Not Be "False"
         $icon = $createLinks[1].IconLocation.split(",")[0]
-        $icon | Should be "$appData\alfresco_careers_icon.ico"
+        $icon | Should be "$appData\quickaccess_icon.ico"
     }
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")    
 }
