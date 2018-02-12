@@ -7,7 +7,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $whoAmI = $env:UserName
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
-$url = "https://localhost:8443/alfresco/service/api/people/$whoAmI/sites/"
+$url = "https://localhost:8443/alfresco/service/api/people/$whoAmI/sites/sites.json"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
@@ -68,15 +68,15 @@ Describe 'Build-Url' {
 
   It "Should build the URL for connecting to Alfresco with paramaters prepended." {
     $urlWithParams = Build-Url "hello=world"
-    $urlWithParams | Should Be "https://localhost:8443/alfresco/service/api/people/$whoAmI/sites/?hello=world"
+    $urlWithParams | Should Be "https://localhost:8443/alfresco/service/api/people/$whoAmI/sites/sites.json?hello=world"
   }
 }
 
 Describe 'Get-ListOfSites' {
     It "Should retrieve a list of sites for the currently logged in user." {
         $convertedObject = (Get-Content stub\sites.json)
-        $sites = Get-ListOfSites -url "$url/"
-        $sites[0].title | Should Match $convertedJSON[0].title
+        $sites = Get-ListOfSites -url $url
+        $sites[0].title | Should Match $convertedObject[0].title
     }
 }
 

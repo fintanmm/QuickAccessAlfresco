@@ -19,7 +19,7 @@ function CopyIcon($icon="") {
 
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
-    $url = "https://$domainName/alfresco/service/api/people/$whoAmI/sites/"
+    $url = "https://$domainName/alfresco/service/api/people/$whoAmI/sites/sites.json"
     
     if ($urlParams) {
         $url = "$($url)?$($urlParams)"
@@ -161,7 +161,7 @@ function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
     $timespan = new-timespan -minutes 10
     if (((get-date) - $lastWriteTime) -gt $timespan) {
         $url = Build-Url
-        $sites = Get-ListOfSites -url "$url/sites.json"
+        $sites = Get-ListOfSites -url "$url"
         [int]$countliveSites = $sites.Count
     }
     return $countliveSites
