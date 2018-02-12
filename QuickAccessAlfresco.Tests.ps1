@@ -78,6 +78,12 @@ Describe 'Get-ListOfSites' {
         $sites = Get-ListOfSites -url $url
         $sites[0].title | Should Match $convertedObject[0].title
     }
+
+    It "Should retrieve an empty list, if there was an unexpected error" {
+        $anEmptyList = @()
+        $sites = Get-ListOfSites -url "https://localhost:8444/alfresco/service/api/people/$whoAmI/sites/filenotfound.json"
+        $sites.Length | Should Be $anEmptyList.Length
+    }    
 }
 
 Describe 'Create-HomeAndSharedLinks' {

@@ -31,7 +31,12 @@ function Get-ListOfSites {
     Param([String] $url)
     $webclient = new-object System.Net.WebClient
     $webclient.UseDefaultCredentials=$true
-    $response = $webclient.DownloadString($url) | ConvertFrom-Json
+    try {
+        $response = $webclient.DownloadString($url) | ConvertFrom-Json
+    }
+    catch {
+        $response = @()
+    }
     return $response
 }
 
