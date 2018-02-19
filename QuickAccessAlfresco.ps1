@@ -19,7 +19,7 @@ function CopyIcon($icon="") {
 
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
-    $url = "https://$domainName/alfresco/service/api/people/$whoAmI/sites/sites.json"
+    $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
     
     if ($urlParams) {
         $url = "$($url)?$($urlParams)"
