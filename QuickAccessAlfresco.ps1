@@ -27,6 +27,11 @@ function Build-Url([String] $urlParams="") {
     return $url
 }
 
+function Set-SecurityProtocols ($protocols="Tls,Tls11,Tls12") {
+    $AllProtocols = [System.Net.SecurityProtocolType]$protocols
+    return [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
+}
+
 function Get-ListOfSites {
     Param([String] $url)
     $webclient = new-object System.Net.WebClient

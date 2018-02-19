@@ -72,6 +72,14 @@ Describe 'Build-Url' {
   }
 }
 
+Describe 'Set-SecurityProtocols' {
+    It "Should set the supported security protocol" {
+        $securityProtocols = 'Tls, Tls11, Tls12'
+        $setSecurityProtocols = Set-SecurityProtocols $securityProtocols
+        $setSecurityProtocols | Should Be $securityProtocols
+    }
+}
+
 Describe 'Get-ListOfSites' {
     It "Should retrieve a list of sites for the currently logged in user." {
         $convertedObject = (Get-Content stub\sites.json)
