@@ -4,6 +4,9 @@ Quiries Alfresco for the current logged in user to retrieve the sites that they 
 
 Should be deployed using GPO.
 
+# Requires
+Powershell version 3+
+
 ## Running 
 Edit bootstrapQuickAccessAlfresco.bat and append the desired params.
 
