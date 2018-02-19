@@ -51,7 +51,7 @@ function Create-HomeAndSharedLinks {
    if (-not $cacheExists.Name.Count) {
         $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes"
         $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared"
-        $createCache = CacheInit
+        $cacheCreate = CacheInit
    }
    return $links
 }
@@ -73,7 +73,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
                 $createdLinks += $addLink
             }
         }
-        $createCache = CacheInit
+        $cacheCreate = CacheInit
     }    
     return $createdLinks
 }
@@ -134,7 +134,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 }
 
 function CacheInit {
-    $createCache = "False"
+    $cacheCreate = "False"
     $cacheExists = CacheExists
 
     if ($cacheExists.Name.Count -ne 0) { # Check cache is current
@@ -142,10 +142,10 @@ function CacheInit {
 
         if ($cacheSizeChanged) {
             Remove-Item "$appData\*.cache"
-            $createCache = CreateCache
+            $cacheCreate = CacheCreate
         }        
     }
-    return $createCache
+    return $cacheCreate
 }
 
 function CacheSizeChanged {
@@ -177,7 +177,7 @@ function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
     return $countliveSites
 }
 
-function CreateCache {
+function CacheCreate {
     $cacheExists = CacheExists
     if ($cacheExists.Name.Count -eq 0) {
         $url = Build-Url

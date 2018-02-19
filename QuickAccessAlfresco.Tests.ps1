@@ -280,9 +280,9 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")    
 }
 
-Describe 'CreateCache' {
+Describe 'CacheCreate' {
     It "Should create cache if it doesn't exists." {
-        $createCache = CreateCache
+        $createCache = CacheCreate
         $createCache.Count | Should be 2
     }
     Clean-Up @('*') ".cache"
