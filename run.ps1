@@ -1,5 +1,5 @@
 $whoAmI = $env:UserName
-$webDir = "alfresco\service\api\people\$whoAmI\sites\"
+$webDir = "share\proxy\alfresco\api\people\$whoAmI\sites\"
 New-Item -ItemType Directory -Force -Path $webDir
 Copy-Item "stub\sites.json" "$webDir\index.json"
 Copy-Item "stub\sites.json" "$webDir\sites.json"
