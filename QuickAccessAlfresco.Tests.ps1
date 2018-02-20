@@ -75,8 +75,10 @@ Describe 'Build-Url' {
 Describe 'Set-SecurityProtocols' {
     It "Should set the supported security protocol" {
         $securityProtocols = 'Tls, Tls11, Tls12'
-        $setSecurityProtocols = Set-SecurityProtocols $securityProtocols
-        $setSecurityProtocols | Should Be $securityProtocols
+        Set-SecurityProtocols $securityProtocols
+        [System.Net.ServicePointManager]::SecurityProtocol | Should Be $securityProtocols
+        $resetProtocols = [System.Net.SecurityProtocolType]"Tls"
+        [System.Net.ServicePointManager]::SecurityProtocol = $resetProtocols
     }
 }
 

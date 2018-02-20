@@ -29,11 +29,12 @@ function Build-Url([String] $urlParams="") {
 
 function Set-SecurityProtocols ($protocols="Tls,Tls11,Tls12") {
     $AllProtocols = [System.Net.SecurityProtocolType]$protocols
-    return [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
+    [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
 }
 
 function Get-ListOfSites {
     Param([String] $url)
+    Set-SecurityProtocols
     $webclient = new-object System.Net.WebClient
     $webclient.UseDefaultCredentials=$true
     try {
