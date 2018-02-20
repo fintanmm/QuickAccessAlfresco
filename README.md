@@ -6,6 +6,7 @@ Should be deployed using GPO.
 
 # Requires
 Powershell version 3+
+SSO enabled Alfresco
 
 ## Running 
 Edit bootstrapQuickAccessAlfresco.bat and append the desired params.
