@@ -1,4 +1,4 @@
-$domainName = "localhost:8080"
+$domainName = "localhost:8443"
 $mapDomain = "localhost"
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
@@ -19,7 +19,7 @@ function CopyIcon($icon="") {
 
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
-    $url = "http://$domainName/alfresco/service/api/people/$whoAmI/sites/"
+    $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
     
     if ($urlParams) {
         $url = "$($url)?$($urlParams)"
@@ -27,11 +27,22 @@ function Build-Url([String] $urlParams="") {
     return $url
 }
 
+function Set-SecurityProtocols ($protocols="Tls,Tls11,Tls12") {
+    $AllProtocols = [System.Net.SecurityProtocolType]$protocols
+    [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
+}
+
 function Get-ListOfSites {
     Param([String] $url)
+    Set-SecurityProtocols
     $webclient = new-object System.Net.WebClient
     $webclient.UseDefaultCredentials=$true
-    $response = $webclient.DownloadString($url) | ConvertFrom-Json
+    try {
+        $response = $webclient.DownloadString($url) | ConvertFrom-Json
+    }
+    catch {
+        $response = @()
+    }
     return $response
 }
 
@@ -41,7 +52,7 @@ function Create-HomeAndSharedLinks {
    if (-not $cacheExists.Name.Count) {
         $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes"
         $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared"
-        $createCache = CacheInit
+        $cacheCreate = CacheInit
    }
    return $links
 }
@@ -63,7 +74,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
                 $createdLinks += $addLink
             }
         }
-        $createCache = CacheInit
+        $cacheCreate = CacheInit
     }    
     return $createdLinks
 }
@@ -117,14 +128,14 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     $shortcut.TargetPath = $fullPath
     $shortcut.Description = $link.description
     if($link.contains("icon")){
-        $shortcut.IconLocation = "$appData\alfresco_careers_icon.ico"
+        $shortcut.IconLocation = "$appData\quickaccess_icon.ico"
     }    
     $shortcut.Save()
     return $shortcut
 }
 
 function CacheInit {
-    $createCache = "False"
+    $cacheCreate = "False"
     $cacheExists = CacheExists
 
     if ($cacheExists.Name.Count -ne 0) { # Check cache is current
@@ -132,10 +143,10 @@ function CacheInit {
 
         if ($cacheSizeChanged) {
             Remove-Item "$appData\*.cache"
-            $createCache = CreateCache
+            $cacheCreate = CacheCreate
         }        
     }
-    return $createCache
+    return $cacheCreate
 }
 
 function CacheSizeChanged {
@@ -161,13 +172,13 @@ function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
     $timespan = new-timespan -minutes 10
     if (((get-date) - $lastWriteTime) -gt $timespan) {
         $url = Build-Url
-        $sites = Get-ListOfSites -url "$url/index.json"
+        $sites = Get-ListOfSites -url "$url"
         [int]$countliveSites = $sites.Count
     }
     return $countliveSites
 }
 
-function CreateCache {
+function CacheCreate {
     $cacheExists = CacheExists
     if ($cacheExists.Name.Count -eq 0) {
         $url = Build-Url
@@ -181,4 +192,11 @@ function CreateCache {
 function CacheExists {
     $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name, LastWriteTime
     return $cacheFile
+}
+
+if ($domainName -inotmatch 'localhost') {
+    Create-AppData
+    Create-HomeAndSharedLinks
+    $listOfSites = Get-ListOfSites Build-Url
+    Create-QuickAccessLink $listOfSites $prependToLinkTitle $icon
 }
