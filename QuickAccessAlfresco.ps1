@@ -193,3 +193,10 @@ function CacheExists {
     $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name, LastWriteTime
     return $cacheFile
 }
+
+if ($domainName -inotmatch 'localhost') {
+    Create-AppData
+    Create-HomeAndSharedLinks
+    $listOfSites = Get-ListOfSites Build-Url
+    Create-QuickAccessLink $listOfSites $prependToLinkTitle $icon
+}
