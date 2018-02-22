@@ -6,12 +6,6 @@ $prependToLinkTitle = ""
 $taskName = "quickAccess"
 $taskExists = (schtasks.exe /query /tn quickAccess)
 
-<#
-#$taskExists = Get-ScheduledTask | Where-Object {$_.TaskName -like $taskName}
-$T = New-JobTrigger -Weekly -At "9:00AM" -DaysOfWeek Monday
-#Register-ScheduledJob -Name $taskName -FilePath "C:\Projects\QuickAccessAlfresco\run.ps1" -RunNow
-#>
-
 function Create-ScheduledTask {
 
     if (!$taskExists) {
