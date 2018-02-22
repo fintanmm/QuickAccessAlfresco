@@ -3,6 +3,26 @@ $mapDomain = "localhost"
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
 $prependToLinkTitle = ""
+$taskName = "quickAccess"
+$taskExists = (schtasks.exe /query /tn quickAccess)
+
+<#
+#$taskExists = Get-ScheduledTask | Where-Object {$_.TaskName -like $taskName}
+$T = New-JobTrigger -Weekly -At "9:00AM" -DaysOfWeek Monday
+#Register-ScheduledJob -Name $taskName -FilePath "C:\Projects\QuickAccessAlfresco\run.ps1" -RunNow
+#>
+
+function Create-ScheduledTask {
+
+    if (!$taskExists) {
+        schtasks.exe /create /tn "$taskName" /sc ONSTART /tr "powershell.exe -file C:\projects\quickaccessalfresco\run.ps1"
+    }
+
+    schtasks.exe /run /tn "$taskName"
+    schtasks.exe /delete /tn "$taskName" /f
+
+    return "True"
+}
 
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
