@@ -37,8 +37,8 @@ function Clean-Up($links, $fileExt = ".lnk") {
     }
 }
 
-Describe 'domainNameParameters' {
-    it  'domainName' {
+Describe 'domainNameParameter' {
+    it  'Should set test domainName param' {
         (Get-Command "$here\$sut").Parameters['domainName'].ParameterType | Should be string
     }
 }
