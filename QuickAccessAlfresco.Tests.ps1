@@ -37,6 +37,12 @@ function Clean-Up($links, $fileExt = ".lnk") {
     }
 }
 
+Describe 'domainNameParameters' {
+    it  'domainName' {
+        (Get-Command "$here\$sut").Parameters['domainName'].ParameterType | Should be string
+    }
+}
+
 Describe "Create-AppData" {
     It "Should create the AppData folder for QuickAccessAlfresco" {
         $createAppData = Create-AppData

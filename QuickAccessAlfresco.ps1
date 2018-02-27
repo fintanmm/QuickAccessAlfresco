@@ -1,8 +1,12 @@
-$domainName = "localhost:8443"
-$mapDomain = "localhost"
+Param(
+    [String]$domainName = 'localhost:8443',
+    [String]$mapDomain = "localhost",
+    [String]$prependToLinkTitle = "",
+    [String]$icon
+)
+
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
-$prependToLinkTitle = ""
 
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
