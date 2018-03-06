@@ -204,6 +204,7 @@ function CacheExists {
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
     Create-HomeAndSharedLinks
-    $listOfSites = Get-ListOfSites Build-Url
+    $fromUrl = Build-Url
+    $listOfSites = Get-ListOfSites $fromUrl
     Create-QuickAccessLinks $listOfSites $prependToLinkTitle $icon
 }
