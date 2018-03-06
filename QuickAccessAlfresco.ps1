@@ -184,7 +184,7 @@ function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
 
 function CacheCreate {
     $cacheExists = CacheExists
-    if ($cacheExists.Name.Count -eq 0) {
+    if ($cacheExists.Count -eq 0) {
         $url = Build-Url
         $sites = Get-ListOfSites -url $url
         New-Item "$appData\$($sites.Count).cache" -type file
@@ -195,6 +195,9 @@ function CacheCreate {
 
 function CacheExists {
     $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name, LastWriteTime
+    if ($cacheFile -eq $null) {
+        $cacheFile = @{}
+    }
     return $cacheFile
 }
 

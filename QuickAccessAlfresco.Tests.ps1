@@ -289,14 +289,21 @@ Describe 'Create-QuickAccessLinks' {
 }
 
 Describe 'CacheCreate' {
+    Clean-Up @('*') ".cache"    
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
         $createCache.Count | Should be 2
     }
-    Clean-Up @('*') ".cache"
+
+    It "Should return the cache if it does exists." {
+        New-Item "$appData\5.cache" -type file -Force
+        $createCache = CacheCreate
+        $createCache.Name | Should be "5.cache"
+    }
 }
 
 Describe 'CacheExists' {
+    Clean-Up @('*') ".cache"    
     It "Should test that the cache doesn't exists." {
         $cacheExists = CacheExists
         $cacheExists.Count | Should be 0
@@ -307,6 +314,7 @@ Describe 'CacheExists' {
         $cacheExists = CacheExists
         $cacheExists.Name | Should be "5.cache"
     }
+    Clean-Up @('*') ".cache"
 }
 
 Describe 'CacheInit' {
