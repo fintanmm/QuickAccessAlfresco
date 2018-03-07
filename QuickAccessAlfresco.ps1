@@ -140,9 +140,9 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
 function CacheInit {
     $cacheCreate = "False"
-    $cacheExists = CacheExists
+    $doesCacheExists = CacheExists
 
-    if ($cacheExists.Name.Count -ne 0) { # Check cache is current
+    if ($doesCacheExists.Count -ne 0) { # Check cache is current
         $cacheSizeChanged = CacheSizeChanged
 
         if ($cacheSizeChanged) {
@@ -156,7 +156,7 @@ function CacheInit {
 function CacheSizeChanged {
     $cacheExists = CacheExists
     $howManySitesCached = 0
-    if ($cacheExists.Name.Count -ne 0) {
+    if ($cacheExists.Count -ne 0) {
         [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
     }
     $countliveSites = CacheTimeChange $cacheExists $howManySitesCached
@@ -194,7 +194,15 @@ function CacheCreate {
 }
 
 function CacheExists {
-    $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name, LastWriteTime
+    try {
+        $cacheFile = Get-ChildItem -File "$appData\*.cache"
+    }
+    catch {
+        
+    }
+
+    
+    $cacheFile = get-childitem -File "$appData\*.cache" | Select-Object Name, LastWriteTime
     if ($cacheFile -eq $null) {
         $cacheFile = @{}
     }
