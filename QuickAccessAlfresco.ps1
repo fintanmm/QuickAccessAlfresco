@@ -167,7 +167,7 @@ function CacheSizeChanged {
 
 function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
 
-    if ($lastWriteTime -ne "") {
+    if ($lastWriteTime.Count -ne 0) {
         $lastWriteTime = $lastWriteTime.LastWriteTime
     } else {
         $lastWriteTime = get-date
@@ -194,14 +194,6 @@ function CacheCreate {
 }
 
 function CacheExists {
-    try {
-        $cacheFile = Get-ChildItem -File "$appData\*.cache"
-    }
-    catch {
-        
-    }
-
-    
     $cacheFile = get-childitem -File "$appData\*.cache" | Select-Object Name, LastWriteTime
     if ($cacheFile -eq $null) {
         $cacheFile = @{}

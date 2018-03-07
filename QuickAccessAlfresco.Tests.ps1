@@ -366,7 +366,7 @@ Describe "CacheTimeChange" {
     }    
 
     It "Should detect if no date is passed to the function. If so do not do a web request." {
-        $cacheTimeChange = CacheTimeChange ""
+        $cacheTimeChange = CacheTimeChange @{}
         $cacheTimeChange | Should Be 0
     }    
 }
