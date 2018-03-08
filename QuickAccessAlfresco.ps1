@@ -8,6 +8,21 @@ Param(
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
 
+function Create-ScheduledTask($taskName) {
+
+    if ((((schtasks.exe /query /tn $taskName)[4] -split ' +')[2]) -eq "Running") {
+
+        schtasks.exe /end /tn $taskName
+    }
+
+    #schtasks.exe /create /tn "$taskName" /sc ONSTART /tr "powershell.exe -file C:\projects\quickaccessalfresco\run.ps1"
+
+    schtasks.exe /create /tn "$taskName" /sc ONSTART /tr "c:\windows\system32\calc.exe" /f
+    Write-Host "Task has been created"
+
+    #schtasks.exe /run /tn "$taskName"
+}
+
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }
@@ -212,13 +227,7 @@ function CacheExists {
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
     Create-HomeAndSharedLinks
-<<<<<<< HEAD
-    $listOfSites = Get-ListOfSites Build-Url
-    Create-QuickAccessLink $listOfSites $prependToLinkTitle $icon
-}
-=======
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
     Create-QuickAccessLinks $listOfSites $prependToLinkTitle $icon
 }
->>>>>>> 227336010254a6e04d1e065810229067af994b05
