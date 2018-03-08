@@ -1,7 +1,13 @@
-$domainName = "localhost:8443"
-$mapDomain = "localhost"
+Param(
+    [String]$domainName = 'localhost:8443',
+    [String]$mapDomain = "localhost",
+    [String]$prependToLinkTitle = "",
+    [String]$icon
+)
+
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
+<<<<<<< HEAD
 $prependToLinkTitle = ""
 $taskName = "quickAccess"
 $taskExists = (schtasks.exe /query /tn quickAccess)
@@ -17,6 +23,8 @@ function Create-ScheduledTask {
 
     return "True"
 }
+=======
+>>>>>>> 227336010254a6e04d1e065810229067af994b05
 
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
@@ -150,9 +158,9 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
 function CacheInit {
     $cacheCreate = "False"
-    $cacheExists = CacheExists
+    $doesCacheExists = CacheExists
 
-    if ($cacheExists.Name.Count -ne 0) { # Check cache is current
+    if ($doesCacheExists.Count -ne 0) { # Check cache is current
         $cacheSizeChanged = CacheSizeChanged
 
         if ($cacheSizeChanged) {
@@ -166,7 +174,7 @@ function CacheInit {
 function CacheSizeChanged {
     $cacheExists = CacheExists
     $howManySitesCached = 0
-    if ($cacheExists.Name.Count -ne 0) {
+    if ($cacheExists.Count -ne 0) {
         [int]$howManySitesCached = $cacheExists.Name.Split(".")[0]
     }
     $countliveSites = CacheTimeChange $cacheExists $howManySitesCached
@@ -194,7 +202,7 @@ function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
 
 function CacheCreate {
     $cacheExists = CacheExists
-    if ($cacheExists.Name.Count -eq 0) {
+    if ($cacheExists.Count -eq 0) {
         $url = Build-Url
         $sites = Get-ListOfSites -url $url
         New-Item "$appData\$($sites.Count).cache" -type file
@@ -204,13 +212,31 @@ function CacheCreate {
 }
 
 function CacheExists {
-    $cacheFile = get-childitem "$appData\*.cache" | Select-Object Name, LastWriteTime
+    try {
+        $cacheFile = Get-ChildItem -File "$appData\*.cache"
+    }
+    catch {
+        
+    }
+
+    
+    $cacheFile = get-childitem -File "$appData\*.cache" | Select-Object Name, LastWriteTime
+    if ($cacheFile -eq $null) {
+        $cacheFile = @{}
+    }
     return $cacheFile
 }
 
-if ($domainName -inotmatch 'localhost') {
+if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
     Create-HomeAndSharedLinks
+<<<<<<< HEAD
     $listOfSites = Get-ListOfSites Build-Url
     Create-QuickAccessLink $listOfSites $prependToLinkTitle $icon
 }
+=======
+    $fromUrl = Build-Url
+    $listOfSites = Get-ListOfSites $fromUrl
+    Create-QuickAccessLinks $listOfSites $prependToLinkTitle $icon
+}
+>>>>>>> 227336010254a6e04d1e065810229067af994b05
