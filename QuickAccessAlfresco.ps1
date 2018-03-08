@@ -7,24 +7,6 @@ Param(
 
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessLinks"
-<<<<<<< HEAD
-$prependToLinkTitle = ""
-$taskName = "quickAccess"
-$taskExists = (schtasks.exe /query /tn quickAccess)
-
-function Create-ScheduledTask {
-
-    if (!$taskExists) {
-        schtasks.exe /create /tn "$taskName" /sc ONSTART /tr "powershell.exe -file C:\projects\quickaccessalfresco\run.ps1"
-    }
-
-    schtasks.exe /run /tn "$taskName"
-    schtasks.exe /delete /tn "$taskName" /f
-
-    return "True"
-}
-=======
->>>>>>> 227336010254a6e04d1e065810229067af994b05
 
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
