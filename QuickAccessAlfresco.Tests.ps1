@@ -44,13 +44,12 @@ Describe 'domainNameParameter' {
 
 Describe "Create-ScheduledTask" {
     It "Should check that the scheduled task is not already running" {
-        $running = Create-ScheduledTask("quickAccessAlfresco")
-        $running | Should -BeLike "SUCCESS*"
+        $taskIsRunning | Should -Not -BeNullOrEmpty
     }
 
     It "Should create a scheduled task" {
-        $createScheduledTask2 = Create-ScheduledTask("quickAccessAlfresco")
-        $createScheduledTask2 | Should -BeLike "SUCCESS*"
+        $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
+        $createScheduledTask | Should -BeLike "SUCCESS*"
     }
 }
 
