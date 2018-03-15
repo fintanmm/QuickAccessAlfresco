@@ -44,8 +44,7 @@ Describe 'domainNameParameter' {
 
 Describe "Create-ScheduledTask" {
     It "Should check that the scheduled task is not already running" {
-        $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
-        $taskIsRunning | Should -Not -BeNullOrEmpty
+        $taskIsRunning | Should -Not -Be "Running"
         Write-Host $taskIsRunning
     }
 
@@ -53,6 +52,9 @@ Describe "Create-ScheduledTask" {
         $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
         $createScheduledTask | Should -BeLike "SUCCESS*"
     }
+
+    $taskIsRunning = ""
+    schtasks.exe /delete /tn quickAccessAlfresco /f
 }
 
 Describe "Create-AppData" {
