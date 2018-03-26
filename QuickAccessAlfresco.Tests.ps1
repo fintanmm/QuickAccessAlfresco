@@ -102,9 +102,9 @@ Describe 'Get-ListOfSites' {
     }    
 }
 
-Describe 'Create-HomeAndSharedLinks' {
+Describe 'Create-HomeAndSharedLinks' {    
     It "Should not create links for the user home and shared because of the cache." {
-        New-Item "$appData\5.cache" -type file
+        New-Item "$appData\5.cache" -type file -Force
         $createHomeAndShared = Create-HomeAndSharedLinks 
         $createHomeAndShared.Count | Should be 0
     }
@@ -224,34 +224,32 @@ Describe 'Create-Link' {
   
 Describe 'Create-QuickAccessLinks' {
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
-        New-Item "$appData\5.cache" -type file
+        Mock CacheSizeChanged {return $true}        
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
     }
 
-    Clean-Up @('*') ".cache"
-
     It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
-        New-Item "$appData\5.cache" -type file
+        Mock CacheSizeChanged {return $true}                
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
-        Clean-Up @('*') ".cache"
-        Mock CacheTimeChange {return 5}
-        New-Item "$appData\2.cache" -type file
+        # Clean-Up @('*') ".cache"
+        Mock CacheSizeChanged {return $false}
+        # New-Item "$appData\2.cache" -type file
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks.Count | Should Be 2
     }
 
     Clean-Up @('*') ".cache"    
-    Clean-Up @('Alfresco - Benchmark', "Benchmark", "Recruitment")
+    Clean-Up @("Benchmark", "Recruitment")
 
     It "Should create all Quick Access links to sites within Alfresco" {
-        Mock CacheTimeChange {return 5}
+        Mock cacheSizeChanged {return $false}
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks[0].Description | Should Match $convertedJSON[0].description
         $createLinks[1].Description | Should Match $convertedJSON[1].description
     }    
-    Clean-Up @('Alfresco - Benchmark', "Benchmark", "Recruitment")
+    Clean-Up @("Benchmark", "Recruitment")
     
     It "Should pepend text to all Quick Access links to sites within Alfresco" {
         Mock CacheTimeChange {return 5}
