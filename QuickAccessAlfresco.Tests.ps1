@@ -312,20 +312,18 @@ Describe 'CacheExists' {
 
 Describe 'CacheInit' {
     It "Should not remove the cache if cache size doesn't change." {
-        Mock CacheTimeChange {return 5}
+        Mock CacheSizeChanged {return 5}
         $CacheInit = CacheInit
         $CacheInit | Should be "False"
     }
     
-    Clean-Up @('*') ".cache"
-
     It "Should remove the cache if cache size does change." {
-        # Mock CacheTimeChange {return 4}
-        New-Item "$appData\4.cache" -type file
+        Mock CacheExists {return @(1, 2)}
+        Mock CacheSizeChanged {return 4}
+        Mock CacheCreate {return @{"Name"= "5.cache"}}
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
     }    
-    Clean-Up @('*') ".cache"
 }
 
 Describe 'CacheSizeChanged' {
