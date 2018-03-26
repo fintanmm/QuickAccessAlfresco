@@ -12,7 +12,6 @@ $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is fo
 $convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
 
-
 function setUp {
     New-Item -ItemType Directory -Force -Path $appData
 }
@@ -41,6 +40,21 @@ Describe 'domainNameParameter' {
     it  'Should set test domainName param' {
         (Get-Command "$here\$sut").Parameters['domainName'].ParameterType | Should be string
     }
+}
+
+Describe "Create-ScheduledTask" {
+    It "Should check that the scheduled task is not already running" {
+        $taskIsRunning | Should -Not -Be "Running"
+        Write-Host $taskIsRunning
+    }
+
+    It "Should create a scheduled task" {
+        $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
+        $createScheduledTask | Should -BeLike "SUCCESS*"
+    }
+
+    $taskIsRunning = ""
+    schtasks.exe /delete /tn quickAccessAlfresco /f
 }
 
 Describe "Create-AppData" {
