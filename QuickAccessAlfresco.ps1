@@ -53,10 +53,10 @@ function Get-ListOfSites {
 function Create-HomeAndSharedLinks {
    $links = @{}
    $cacheExists = CacheExists
-   if (-not $cacheExists.Name.Count) {
+   if ($cacheExists.Count -eq 0) {
         $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes"
         $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared"
-        $cacheCreate = CacheInit
+       
    }
    return $links
 }
@@ -65,7 +65,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
     $createdLinks = @()
 
     $cacheSizeChanged = CacheSizeChanged
-    if ($cacheSizeChanged) {    
+    if ($cacheSizeChanged -eq $false) {
         for($i = 0; $i -lt $links.Count; $i++) {
             if ($prepend) {
                 $links[$i]["prepend"] = $prepend
@@ -82,7 +82,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
     }    
     return $createdLinks
 }
-
+ 
 function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     if ($link.Count -eq 0) {
@@ -114,14 +114,14 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     } 
     if ($protocol -eq "https") {
         $findPath = @{
-            "Sites" = "https://$mapDomain/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "https://$mapDomain/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "https://$mapDomain/alfresco/webdav/$($whatPath.ToLower())";
+            "Sites" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
+            "Shared" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())";
         }
     }     
 
     $fullPath = $findPath.Get_Item($whatPath)
-
+    
     if ($fullPath.length -eq 0) {
         return "False"
     }
@@ -142,10 +142,10 @@ function CacheInit {
     $cacheCreate = "False"
     $doesCacheExists = CacheExists
 
-    if ($doesCacheExists.Count -ne 0) { # Check cache is current
+    if ($doesCacheExists.Count -gt 0) { # Check cache is current
         $cacheSizeChanged = CacheSizeChanged
 
-        if ($cacheSizeChanged) {
+        if ($cacheSizeChanged -or ($doesCacheExists.Count -gt 0)) {
             Remove-Item "$appData\*.cache"
             $cacheCreate = CacheCreate
         }        
