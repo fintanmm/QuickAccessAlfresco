@@ -11,12 +11,9 @@ $appData = "$env:APPDATA\QuickAccessLinks"
 function Create-ScheduledTask($taskName) {
 
     try {
-
         $global:taskIsRunning = ((schtasks.exe /query /tn $taskName)[4] -split ' +')[2]
     }
-
     catch {
-
         $taskIsRunning = "False"
         Write-Host "Task Did Not Exist"
     }
