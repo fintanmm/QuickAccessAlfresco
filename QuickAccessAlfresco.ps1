@@ -10,22 +10,17 @@ $appData = "$env:APPDATA\QuickAccessLinks"
 
 function Create-ScheduledTask($taskName) {
 
-    try {
-        $global:taskIsRunning = ((schtasks.exe /query /tn $taskName)[4] -split ' +')[2]
-    }
-    catch {
-        $taskIsRunning = "False"
-        Write-Host "Task Did Not Exist"
-    }
+    $taskFile = ($PSScriptRoot + "\QuickAccessAlfresco.ps1")
+    $taskIsRunning = schtasks.exe /query /tn $taskName 2>&1
 
-    if ($taskIsRunning -eq "Running") {
+    if ($taskIsRunning -match "ERROR") {
+        $createTask = schtasks.exe /create /tn "$taskName" /sc HOURLY /tr "powershell.exe $taskFile" /f 2>&1
 
-        schtasks.exe /end /tn $taskName
-        Write-Host "Task Was Terminated"
+        if ($createTask -match "SUCCESS") {
+            return $createTask
+        }
     }
-
-    schtasks.exe /create /tn "$taskName" /sc ONSTART /tr "c:\windows\system32\calc.exe" /f
-    Write-Host "Task has been created"
+    return $false
 }
 
 function Create-AppData {
