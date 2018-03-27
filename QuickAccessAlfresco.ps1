@@ -128,7 +128,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
             "Shared" = "ftps://$mapDomain/alfresco/$whatPath";
         }
     } 
-    if ($protocol -eq "https") {
+    if ($protocol -eq "webdav") {
         $findPath = @{
             "Sites" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
             "User Homes" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;

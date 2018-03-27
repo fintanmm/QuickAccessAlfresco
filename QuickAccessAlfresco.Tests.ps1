@@ -202,7 +202,7 @@ Describe 'Create-Link' {
     }
 
     It "Should create a WebDav Quick Access link to an Alfresco site." {
-        $createLink = Create-Link $convertedJSON[0] "Sites" "https"
+        $createLink = Create-Link $convertedJSON[0] "Sites" "webdav"
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
@@ -212,14 +212,14 @@ Describe 'Create-Link' {
     Clean-Up @('Home', "Shared", "Benchmark")
 
     It "Should create a WebDav Quick Access link to user home." {
-        $createLink = Create-Link $homeAndShared[0] "User Homes" "https"
+        $createLink = Create-Link $homeAndShared[0] "User Homes" "webdav"
         $result = Test-Path "$env:userprofile\Links\Home.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "My Files"
     }
 
     It "Should create a WebDav Quick Access link to Shared." {
-        $createLink = Create-Link $homeAndShared[1] "shared" "https"
+        $createLink = Create-Link $homeAndShared[1] "shared" "webdav"
         $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "Shared Files"
