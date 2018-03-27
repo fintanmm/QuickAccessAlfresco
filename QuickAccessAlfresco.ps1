@@ -2,7 +2,8 @@ Param(
     [String]$domainName = 'localhost:8443',
     [String]$mapDomain = "localhost",
     [String]$prependToLinkTitle = "",
-    [String]$icon
+    [String]$icon,
+    [String]$protocol = ""
 )
 
 $linkBaseDir = "$env:userprofile\Links"
@@ -69,8 +70,8 @@ function Create-HomeAndSharedLinks {
    $links = @{}
    $cacheExists = CacheExists
    if ($cacheExists.Count -eq 0) {
-        $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes"
-        $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared"
+        $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes" -protocol $protocol
+        $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared" -protocol $protocol
        
    }
    return $links
@@ -88,7 +89,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
             if ($icon) {
                 $links[$i]["icon"] = $icon
             }            
-            $addLink = Create-Link $links[$i]
+            $addLink = Create-Link $links[$i] -protocol $protocol
             if ($addLink -ne "False") {
                 $createdLinks += $addLink
             }
