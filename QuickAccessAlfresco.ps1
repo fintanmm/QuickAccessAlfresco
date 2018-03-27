@@ -6,7 +6,7 @@ Param(
 )
 
 $linkBaseDir = "$env:userprofile\Links"
-$appData = "$env:APPDATA\QuickAccessLinks"
+$appData = "$env:APPDATA\QuickAccessAlfresco"
 
 function Create-ScheduledTask($taskName) {
 

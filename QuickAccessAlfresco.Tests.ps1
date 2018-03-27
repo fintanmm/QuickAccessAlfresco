@@ -6,7 +6,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 $whoAmI = $env:UserName
 $linkBaseDir = "$env:userprofile\Links"
-$appData = "$env:APPDATA\QuickAccessLinks"
+$appData = "$env:APPDATA\QuickAccessAlfresco"
 $url = "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/"
 $convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
 $convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
@@ -177,7 +177,6 @@ Describe 'Create-Link' {
 
     Clean-Up @('Benchmark')
 
-    # FIXME: There is a side effect here, the title is prepended to when it shouldn't be
     It "Should create a ftps Quick Access link to an Alfresco site." {
         $createLink = Create-Link $convertedJSON[0] "Sites" "ftps"
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
@@ -207,6 +206,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
+        # $createLink.TargetPath | Should Match "https://localhost:8443/alfresco/webdav/sites/benchmark/documentLibrary"
     }
 
     Clean-Up @('Home', "Shared", "Benchmark")
