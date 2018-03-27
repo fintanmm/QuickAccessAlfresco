@@ -135,6 +135,13 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
             "Shared" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())";
         }
     }     
+    if ($protocol -eq "sharepoint") {
+        $findPath = @{
+            "Sites" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName;
+            "Shared" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())";
+        }
+    }         
 
     $fullPath = $findPath.Get_Item($whatPath)
     

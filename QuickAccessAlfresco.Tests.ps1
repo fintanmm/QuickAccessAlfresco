@@ -225,7 +225,31 @@ Describe 'Create-Link' {
         $createLink.Description | Should Match "Shared Files"
     }
 
-    Clean-Up @('Home', "Shared") 
+    It "Should create a Sharepoint Quick Access link to an Alfresco site." {
+        $createLink = Create-Link $convertedJSON[0] "Sites" "sharepoint"
+        $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match $convertedJSON[0].description
+        # $createLink.TargetPath | Should Match "https://localhost:8443/alfresco/webdav/sites/benchmark/documentLibrary"
+    }
+
+    Clean-Up @('Home', "Shared", "Benchmark")
+
+    It "Should create a Sharepoint Quick Access link to user home." {
+        $createLink = Create-Link $homeAndShared[0] "User Homes" "sharepoint"
+        $result = Test-Path "$env:userprofile\Links\Home.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match "My Files"
+    }
+
+    It "Should create a Sharepoint Quick Access link to Shared." {
+        $createLink = Create-Link $homeAndShared[1] "shared" "sharepoint"
+        $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
+        $createLink | Should be $result
+        $createLink.Description | Should Match "Shared Files"
+    }
+
+    Clean-Up @('Home', "Shared")     
 
     It "Should not create any link to Alfresco because the path is wrong." {
         $createLink = Create-Link $homeAndShared[1] "wrongPath"
