@@ -244,14 +244,11 @@ Describe 'Create-QuickAccessLinks' {
         Mock CacheSizeChanged {return $true}                
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
-        # Clean-Up @('*') ".cache"
         Mock CacheSizeChanged {return $false}
-        # New-Item "$appData\2.cache" -type file
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks.Count | Should Be 2
     }
 
-    Clean-Up @('*') ".cache"    
     Clean-Up @("Benchmark", "Recruitment")
 
     It "Should create all Quick Access links to sites within Alfresco" {
@@ -293,7 +290,7 @@ Describe 'Create-QuickAccessLinks' {
 }
 
 Describe 'CacheCreate' {
-    Clean-Up @('*') ".cache"    
+    Clean-Up @('*') ".cache"
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
         $createCache.Count | Should be 2
@@ -304,10 +301,10 @@ Describe 'CacheCreate' {
         $createCache = CacheCreate
         $createCache.Name | Should be "5.cache"
     }
+    Clean-Up @('*') ".cache"
 }
 
-Describe 'CacheExists' {
-    Clean-Up @('*') ".cache"    
+Describe 'CacheExists' {  
     It "Should test that the cache doesn't exists." {
         $cacheExists = CacheExists
         $cacheExists.Count | Should be 0
@@ -340,7 +337,7 @@ Describe 'CacheInit' {
 Describe 'CacheSizeChanged' {
     It "Should detect if there is a change in the size of the cache." {
         Mock CacheTimeChange {return 5}
-        New-Item "$appData\4.cache" -type file
+        New-Item "$appData\4.cache" -type file -Force
         $cacheSizeChanged = CacheSizeChanged
         $cacheSizeChanged | Should Match "True"       
     }

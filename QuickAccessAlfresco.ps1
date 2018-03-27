@@ -203,8 +203,8 @@ function CacheCreate {
         $url = Build-Url
         $sites = Get-ListOfSites -url $url
         New-Item "$appData\$($sites.Count).cache" -type file
+        $cacheExists = CacheExists
     }
-    $cacheExists = CacheExists
     return $cacheExists
 }
 
