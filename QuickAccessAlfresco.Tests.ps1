@@ -116,14 +116,13 @@ Describe 'Get-ListOfSites' {
 
 Describe 'Create-HomeAndSharedLinks' {    
     It "Should not create links for the user home and shared because of the cache." {
-        New-Item "$appData\5.cache" -type file -Force
+        Mock CacheExists {return @(1, 2)}
         $createHomeAndShared = Create-HomeAndSharedLinks 
         $createHomeAndShared.Count | Should be 0
     }
     
-    Clean-Up @('*') ".cache"
-
     It "Should create links for the user home and shared." {
+        Mock CacheExists {return @()}        
         $createHomeAndShared = Create-HomeAndSharedLinks 
         $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
         $createHomeAndShared[0].TargetPath | Should Be "\\localhost\Alfresco\User Homes\$whoAmI"
