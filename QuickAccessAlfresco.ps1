@@ -107,7 +107,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     $path = "$linkBaseDir\$($link.title).lnk"
 
-    if($link.contains("prepend")){
+    if($link.prepend){
         $path = "$linkBaseDir\$($link.prepend)$($link.title).lnk"
     }
  
@@ -154,7 +154,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     $shortcut.TargetPath = $fullPath
     $shortcut.Description = $link.description
-    if($link.contains("icon")){
+    if($link.icon){
         $shortcut.IconLocation = "$appData\quickaccess_icon.ico"
     }    
     $shortcut.Save()
@@ -229,5 +229,5 @@ if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-HomeAndSharedLinks
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
-    Create-QuickAccessLinks $listOfSites $prependToLinkTitle $icon
+    Create-QuickAccessLinks $listOfSites -prependToLinkTitle $prependToLinkTitle $icon
 }
