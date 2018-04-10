@@ -58,10 +58,10 @@ function Get-ListOfSites {
     $webclient = new-object System.Net.WebClient
     $webclient.UseDefaultCredentials=$true
     try {
-        $response = $webclient.DownloadString($url) | ConvertFrom-Json
+        [array]$response = $webclient.DownloadString($url) | ConvertFrom-Json
     }
     catch {
-        $response = @()
+        [array]$response = @()
     }
     return $response
 }
@@ -83,11 +83,11 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
     $cacheSizeChanged = CacheSizeChanged
     if ($cacheSizeChanged -eq $false) {
         for($i = 0; $i -lt $links.Count; $i++) {
-            if ($prepend) {
-                $links[$i]["prepend"] = $prepend
+            if (![string]::IsNullOrEmpty($prepend)) {
+                Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name prepend -Value $prepend -Force
             }
-            if ($icon) {
-                $links[$i]["icon"] = $icon
+            if (![string]::IsNullOrEmpty($icon)) {
+                Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name icon -Value $icon -Force
             }            
             $addLink = Create-Link $links[$i] -protocol $protocol
             if ($addLink -ne "False") {
