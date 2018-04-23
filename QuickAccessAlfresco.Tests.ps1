@@ -64,21 +64,6 @@ Describe "Create-AppData" {
     #Remove-Item "$($appData)"
 }
 
-Describe "CopyIcon" {
-    It "Should copy the icon to the user appData folder." {
-        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
-        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
-        $copyIcon | Should be $true
-    }
-
-    It "Should not copy the icon to the user appData folder." {
-        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
-        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
-        $copyIcon | Should be $false
-    }    
-    Clean-Up @('*') ".ico"
-}
-
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should Be $url
@@ -325,6 +310,21 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks[1].TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\Recruitment\documentLibrary"
     }
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")        
+}
+
+Describe "CopyIcon" {
+    It "Should copy the icon to the user appData folder." {
+        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
+        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
+        $copyIcon | Should be $true
+    }
+
+    It "Should not copy the icon to the user appData folder." {
+        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
+        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
+        $copyIcon | Should be $false
+    }    
+    Clean-Up @('*') ".ico"
 }
 
 Describe 'CacheCreate' {

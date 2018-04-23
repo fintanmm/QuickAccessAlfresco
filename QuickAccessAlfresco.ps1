@@ -28,15 +28,6 @@ function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }
 
-function CopyIcon($icon="") {
-    $testPath = (-Not (Test-Path "$appData\$icon"))
-    if ($icon -And $testPath) {
-        Copy-Item $icon "$appData\"
-        return $true
-    }
-    return $false
-}
-
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
     $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
@@ -102,6 +93,15 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
         $cacheCreate = CacheInit
     }    
     return $createdLinks
+}
+
+function CopyIcon($icon="") {
+    $testPath = (-Not (Test-Path "$appData\$icon"))
+    if ($icon -And $testPath) {
+        Copy-Item $icon "$appData\"
+        return $true
+    }
+    return $false
 }
  
 function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
