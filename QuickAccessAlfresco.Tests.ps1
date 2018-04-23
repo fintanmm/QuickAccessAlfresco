@@ -314,7 +314,17 @@ Describe 'Create-QuickAccessLinks' {
         $icon = $createLinks[1].IconLocation.split(",")[0]
         $icon | Should be "$appData\quickaccess_icon.ico"
     }
-    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")    
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
+  
+    It "Should use the SharePoint protocol to setup Quick Access links to a site within Alfresco" {
+        $createLinks = Create-QuickAccessLinks -links $convertedJSON -protocol "sharepoint"
+    
+        $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
+        $recruitment | Should Not Be "False"
+        $createLinks[1].Description | Should Match $convertedJSON[1].description
+        $createLinks[1].TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\Recruitment\documentLibrary"
+    }
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")        
 }
 
 Describe 'CacheCreate' {

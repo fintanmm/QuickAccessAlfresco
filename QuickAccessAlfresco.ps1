@@ -77,7 +77,7 @@ function Create-HomeAndSharedLinks {
    return $links
 }
 
-function Create-QuickAccessLinks($links, $prepend="", $icon="") {
+function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
     $createdLinks = @()
 
     $cacheSizeChanged = CacheSizeChanged
@@ -229,5 +229,5 @@ if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-HomeAndSharedLinks
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
-    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon
+    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
 }
