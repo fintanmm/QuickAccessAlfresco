@@ -229,5 +229,5 @@ if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-HomeAndSharedLinks
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
-    Create-QuickAccessLinks $listOfSites -prependToLinkTitle $prependToLinkTitle $icon
+    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon
 }
