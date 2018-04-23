@@ -313,6 +313,8 @@ Describe 'Create-QuickAccessLinks' {
 }
 
 Describe "CopyIcon" {
+    Clean-Up @('*') ".ico"
+
     It "Should copy the icon to the user appData folder." {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
