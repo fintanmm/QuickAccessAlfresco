@@ -68,13 +68,13 @@ Describe "CopyIcon" {
     It "Should copy the icon to the user appData folder." {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
-        $copyIcon | Should be "True"
+        $copyIcon | Should be $true
     }
 
     It "Should not copy the icon to the user appData folder." {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
-        $copyIcon | Should be "False"
+        $copyIcon | Should be $false
     }    
     Clean-Up @('*') ".ico"
 }

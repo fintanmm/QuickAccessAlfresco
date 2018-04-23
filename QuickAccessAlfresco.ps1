@@ -32,9 +32,9 @@ function CopyIcon($icon="") {
     $testPath = (-Not (Test-Path "$appData\$icon"))
     if ($icon -And $testPath) {
         Copy-Item $icon "$appData\"
-        return "True"
+        return $true
     }
-    return "False"
+    return $false
 }
 
 function Build-Url([String] $urlParams="") {
