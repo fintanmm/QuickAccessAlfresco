@@ -80,6 +80,11 @@ function Create-HomeAndSharedLinks {
 function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
     $createdLinks = @()
 
+    if (![string]::IsNullOrEmpty($icon)) {
+        copyIcon -icon $icon
+        $icon = "$appData\quickaccess_icon.ico"
+    }   
+
     $cacheSizeChanged = CacheSizeChanged
     if ($cacheSizeChanged -eq $false) {
         for($i = 0; $i -lt $links.Count; $i++) {
