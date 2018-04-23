@@ -130,16 +130,16 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     } 
     if ($protocol -eq "webdav") {
         $findPath = @{
-            "Sites" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())";
+            "Sites" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
+            "Shared" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())";
         }
     }     
     if ($protocol -eq "sharepoint") {
         $findPath = @{
-            "Sites" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())";
+            "Sites" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName;
+            "Shared" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())";
         }
     }         
 
