@@ -55,15 +55,6 @@ Describe "Create-ScheduledTask" {
     schtasks.exe /delete /tn quickAccessAlfresco /f 2>&1
 }
 
-Describe "Create-AppData" {
-    It "Should create the AppData folder for QuickAccessAlfresco" {
-        $createAppData = Create-AppData
-        $doesAppDataExist = Test-Path $appData
-        $createAppData | Should be $doesAppDataExist
-    }
-    #Remove-Item "$($appData)"
-}
-
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should Be $url
@@ -408,4 +399,13 @@ Describe "CacheTimeChange" {
         $cacheTimeChange = CacheTimeChange @{}
         $cacheTimeChange | Should Be 0
     }    
+}
+
+Describe "Create-AppData" {
+    It "Should create the AppData folder for QuickAccessAlfresco" {
+        $createAppData = Create-AppData
+        $doesAppDataExist = Test-Path $appData
+        $createAppData | Should be $doesAppDataExist
+    }
+    #Remove-Item "$($appData)"
 }

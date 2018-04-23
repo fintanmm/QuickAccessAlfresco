@@ -24,10 +24,6 @@ function Create-ScheduledTask($taskName) {
     return $false
 }
 
-function Create-AppData {
-    New-Item -ItemType Directory -Force -Path $appData
-}
-
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
     $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
@@ -227,6 +223,10 @@ function CacheExists {
         $cacheFile = @{}
     }
     return $cacheFile
+}
+
+function Create-AppData {
+    New-Item -ItemType Directory -Force -Path $appData
 }
 
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
