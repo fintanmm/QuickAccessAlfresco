@@ -4,7 +4,9 @@ if (Test-Path ".\0)") {
 $whoAmI = $env:UserName
 $webDir = "share\proxy\alfresco\api\people\$whoAmI\sites\"
 $webDavDir = "alfresco\webdav\Sites"
-New-Item -ItemType Directory -Force -Path $webDir $webDavDir
+New-Item -ItemType Directory -Force -Path $webDir 
+New-Item -ItemType Directory -Force -Path $webDavDir
+Copy-Item "stub\sites.json" "$webDavDir\index.json"
 Copy-Item "stub\sites.json" "$webDir\index.json"
 Copy-Item "stub\sites.json" "$webDir\sites.json"
 New-Item -Name quickaccess_icon.ico  -Force -ItemType File
