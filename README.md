@@ -1,12 +1,21 @@
-# Quick Access Alfresco
+# Quick Access Alfresco (QAA)
 
-Quiries Alfresco for the current logged in user to retrieve the sites that they belong to. Then creates and maintains quick access(favourites) links in Windows Explorer. 
+QAA is a script written in PowerShell, QAA queries Alfresco for the current logged in user to retrieve the sites that they are a member of, it will then create and maintain quick access(Windows 10) or favourites(Windows 7) links in Windows Explorer. 
 
-Should be deployed using GPO.
+QAA Should be deployed using GPO to client machines. Currently QAA defaults to the CIFS protocol when setting up links.
+
+# Features:
+    1. Sets up a schedule to run hourly.(TODO)
+    2. Caches result so that updates are run when needed.
+    3. QAA supports multiple protocols such as CIFS, FTPS, WebDAV and SharePoint.
+    4. Creates Home and Shared links.
+    5. Ability to apply a custom folder icon to folders.
+    6. Retrieve favourite sites and place other sites within a sites folder.(TODO)
 
 # Requires
-Powershell version 3+
-SSO enabled Alfresco
+    * Powershell version 3+
+    * SSO enabled Alfresco
+    * TLS version 1.2+ enabled client for WebDAV/SharePoint to work correctly.
 
 ## Running 
 Edit bootstrapQuickAccessAlfresco.bat and append the desired params.

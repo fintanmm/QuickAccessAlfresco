@@ -24,19 +24,6 @@ function Create-ScheduledTask($taskName) {
     return $false
 }
 
-function Create-AppData {
-    New-Item -ItemType Directory -Force -Path $appData
-}
-
-function CopyIcon($icon="") {
-    $testPath = (-Not (Test-Path "$appData\$icon"))
-    if ($icon -And $testPath) {
-        Copy-Item $icon "$appData\"
-        return "True"
-    }
-    return "False"
-}
-
 function Build-Url([String] $urlParams="") {
     $whoAmI = $env:UserName
     $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
@@ -77,8 +64,13 @@ function Create-HomeAndSharedLinks {
    return $links
 }
 
-function Create-QuickAccessLinks($links, $prepend="", $icon="") {
+function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
     $createdLinks = @()
+
+    if (![string]::IsNullOrEmpty($icon)) {
+        copyIcon -icon $icon
+        $icon = "$appData\quickaccess_icon.ico"
+    }   
 
     $cacheSizeChanged = CacheSizeChanged
     if ($cacheSizeChanged -eq $false) {
@@ -97,6 +89,15 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="") {
         $cacheCreate = CacheInit
     }    
     return $createdLinks
+}
+
+function CopyIcon($icon="") {
+    $testPath = (-Not (Test-Path "$appData\$icon"))
+    if ($icon -And $testPath) {
+        Copy-Item $icon "$appData\"
+        return $true
+    }
+    return $false
 }
  
 function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
@@ -130,16 +131,16 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     } 
     if ($protocol -eq "webdav") {
         $findPath = @{
-            "Sites" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "https://$domainName/alfresco/webdav/$($whatPath.ToLower())";
+            "Sites" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
+            "Shared" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())";
         }
     }     
     if ($protocol -eq "sharepoint") {
         $findPath = @{
-            "Sites" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "https://$domainName/alfresco/aos/$($whatPath.ToLower())";
+            "Sites" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
+            "User Homes" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName;
+            "Shared" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())";
         }
     }         
 
@@ -224,10 +225,14 @@ function CacheExists {
     return $cacheFile
 }
 
+function Create-AppData {
+    New-Item -ItemType Directory -Force -Path $appData
+}
+
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
     Create-HomeAndSharedLinks
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
-    Create-QuickAccessLinks $listOfSites -prependToLinkTitle $prependToLinkTitle $icon
+    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
 }

@@ -55,30 +55,6 @@ Describe "Create-ScheduledTask" {
     schtasks.exe /delete /tn quickAccessAlfresco /f 2>&1
 }
 
-Describe "Create-AppData" {
-    It "Should create the AppData folder for QuickAccessAlfresco" {
-        $createAppData = Create-AppData
-        $doesAppDataExist = Test-Path $appData
-        $createAppData | Should be $doesAppDataExist
-    }
-    #Remove-Item "$($appData)"
-}
-
-Describe "CopyIcon" {
-    It "Should copy the icon to the user appData folder." {
-        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
-        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
-        $copyIcon | Should be "True"
-    }
-
-    It "Should not copy the icon to the user appData folder." {
-        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
-        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
-        $copyIcon | Should be "False"
-    }    
-    Clean-Up @('*') ".ico"
-}
-
 Describe 'Build-Url' {
   It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should Be $url
@@ -206,7 +182,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
-        # $createLink.TargetPath | Should Match "https://localhost:8443/alfresco/webdav/sites/benchmark/documentLibrary"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\sites\benchmark\documentLibrary"
     }
 
     Clean-Up @('Home', "Shared", "Benchmark")
@@ -216,6 +192,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Home.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "My Files"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\user homes\$whoAmI"        
     }
 
     It "Should create a WebDav Quick Access link to Shared." {
@@ -223,6 +200,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "Shared Files"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\Shared"
     }
 
     It "Should create a Sharepoint Quick Access link to an Alfresco site." {
@@ -230,7 +208,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
-        # $createLink.TargetPath | Should Match "https://localhost:8443/alfresco/webdav/sites/benchmark/documentLibrary"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\benchmark\documentLibrary"
     }
 
     Clean-Up @('Home', "Shared", "Benchmark")
@@ -240,6 +218,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Home.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "My Files"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\user homes\$whoAmI"
     }
 
     It "Should create a Sharepoint Quick Access link to Shared." {
@@ -247,6 +226,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "Shared Files"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\Shared"
     }
 
     Clean-Up @('Home', "Shared")     
@@ -298,11 +278,11 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 
     It "Should add an icon to all Quick Access links to sites within Alfresco" {
-        $createLinks = Create-QuickAccessLinks $convertedJSON "" "$appData\quickaccess_icon.ico"
+        $createLinks = Create-QuickAccessLinks -links $convertedJSON -icon ".\quickaccess_icon.ico"
         
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $benchmark | Should Not Be "False"
-        $icon = $createLinks[0].IconLocation.split(",")[0]
+        $icon = $createLinks[2].IconLocation.split(",")[0]
         $icon | Should be "$appData\quickaccess_icon.ico"
         
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
@@ -310,7 +290,34 @@ Describe 'Create-QuickAccessLinks' {
         $icon = $createLinks[1].IconLocation.split(",")[0]
         $icon | Should be "$appData\quickaccess_icon.ico"
     }
-    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")    
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
+  
+    It "Should use the SharePoint protocol to setup Quick Access links to a site within Alfresco" {
+        $createLinks = Create-QuickAccessLinks -links $convertedJSON -protocol "sharepoint"
+    
+        $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
+        $recruitment | Should Not Be "False"
+        $createLinks[1].Description | Should Match $convertedJSON[1].description
+        $createLinks[1].TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\Recruitment\documentLibrary"
+    }
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")        
+}
+
+Describe "CopyIcon" {
+    Clean-Up @('*') ".ico"
+
+    It "Should copy the icon to the user appData folder." {
+        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
+        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
+        $copyIcon | Should be $true
+    }
+
+    It "Should not copy the icon to the user appData folder." {
+        $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
+        $copyIcon = CopyIcon ".\quickaccess_icon.ico"
+        $copyIcon | Should be $false
+    }    
+    Clean-Up @('*') ".ico"
 }
 
 Describe 'CacheCreate' {
@@ -396,4 +403,13 @@ Describe "CacheTimeChange" {
         $cacheTimeChange | Should Be 0
         Write-Host $lastWriteTime
     }    
+}
+
+Describe "Create-AppData" {
+    It "Should create the AppData folder for QuickAccessAlfresco" {
+        $createAppData = Create-AppData
+        $doesAppDataExist = Test-Path $appData
+        $createAppData | Should be $doesAppDataExist
+    }
+    #Remove-Item "$($appData)"
 }
