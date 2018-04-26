@@ -163,17 +163,12 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 }
 
 function CacheInit {
-    $cacheCreate = "False"
-    $doesCacheExists = CacheExists
-
-    if ($doesCacheExists.Count -gt 0) { # Check cache is current
-        $cacheSizeChanged = CacheSizeChanged
-
-        if ($cacheSizeChanged -or ($doesCacheExists.Count -gt 0)) {
-            Remove-Item "$appData\*.cache"
-            $cacheCreate = CacheCreate
-        }        
-    }
+    $cacheCreate = CacheCreate
+    
+    if (CacheSizeChanged -eq $true) {
+        Remove-Item "$appData\*.cache"
+        $cacheCreate = CacheCreate 
+    }        
     return $cacheCreate
 }
 

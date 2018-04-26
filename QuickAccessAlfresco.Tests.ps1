@@ -350,16 +350,23 @@ Describe 'CacheExists' {
 }
 
 Describe 'CacheInit' {
-    It "Should not remove the cache if cache size doesn't change." {
-        Mock CacheSizeChanged {return 5}
+    $cacheFile = @{'Name' = '5.cache';}
+    Mock CacheCreate {return $cacheFile}
+
+    It "Should create cache if cache doesn't exist." {
+        Mock CacheSizeChanged {return $false}
         $CacheInit = CacheInit
-        $CacheInit | Should be "False"
+        $CacheInit.Name | Should Match "5.cache"
     }
+
+    It "Should not remove the cache if cache size doesn't change." {
+        Mock CacheSizeChanged {return $false}
+        $CacheInit = CacheInit
+        $CacheInit.Name | Should Match "5.cache"
+    }    
     
     It "Should remove the cache if cache size does change." {
-        Mock CacheExists {return @(1, 2)}
-        Mock CacheSizeChanged {return 4}
-        Mock CacheCreate {return @{"Name"= "5.cache"}}
+        Mock CacheSizeChanged {return $true}
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
     }    
