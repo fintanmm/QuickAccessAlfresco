@@ -119,12 +119,12 @@ Describe 'Create-Link' {
 
     It "Should not create Quick Access link to Alfresco because it exists." {
         $createLink = Create-Link $convertedJSON[0]
-        $createLink | Should be "False"
+        $createLink | Should be $false
     }
 
     It "Should not create an empty Quick Access link to Alfresco." {
         $createLink = Create-Link @{}
-        $createLink | Should be "False"
+        $createLink | Should be $false
     }
 
     It "Should pepend text to the Quick Access link to Alfresco." {
@@ -132,7 +132,7 @@ Describe 'Create-Link' {
         $prependedJSON[0]["prepend"] = "Alfresco - "
         $createLink = Create-Link $prependedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
-        $createLink | Should Not Be "False"
+        $createLink | Should Not Be $false
         $createLink.Description | Should Match $prependedJSON[0].description
         $prependedJSON[0].Remove("prepend")
     }    
@@ -233,7 +233,7 @@ Describe 'Create-Link' {
 
     It "Should not create any link to Alfresco because the path is wrong." {
         $createLink = Create-Link $homeAndShared[1] "wrongPath"
-        $createLink | Should be "False"
+        $createLink | Should be $false
     }
 }
   
@@ -268,11 +268,11 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks = Create-QuickAccessLinks $convertedJSON "Alfresco - "
         
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
-        $benchmark | Should Not Be "False"
+        $benchmark | Should Not Be $false
         $createLinks[0].Description | Should Match $convertedJSON[0].description
         
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
-        $recruitment | Should Not Be "False"
+        $recruitment | Should Not Be $false
         $createLinks[1].Description | Should Match $convertedJSON[1].description
     }
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
@@ -281,12 +281,12 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks = Create-QuickAccessLinks -links $convertedJSON -icon ".\quickaccess_icon.ico"
         
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
-        $benchmark | Should Not Be "False"
+        $benchmark | Should Not Be $false
         $icon = $createLinks[2].IconLocation.split(",")[0]
         $icon | Should be "$appData\quickaccess_icon.ico"
         
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
-        $recruitment | Should Not Be "False"
+        $recruitment | Should Not Be $false
         $icon = $createLinks[1].IconLocation.split(",")[0]
         $icon | Should be "$appData\quickaccess_icon.ico"
     }
@@ -354,7 +354,7 @@ Describe 'CacheInit' {
     It "Should not remove the cache if cache size doesn't change." {
         Mock CacheSizeChanged {return 5}
         $CacheInit = CacheInit
-        $CacheInit | Should be "False"
+        $CacheInit | Should be $false
     }
     
     It "Should remove the cache if cache size does change." {
@@ -371,14 +371,14 @@ Describe 'CacheSizeChanged' {
         Mock CacheTimeChange {return 5}
         New-Item "$appData\4.cache" -type file -Force
         $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match "True"       
+        $cacheSizeChanged | Should Match $true       
     }
     Clean-Up @('*') ".cache"
 
     It "Should detect if the cache is the same size." {
         New-Item "$appData\5.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match "False"       
+        $cacheSizeChanged | Should Match $false      
     }
     Clean-Up @('*') ".cache"
 }
