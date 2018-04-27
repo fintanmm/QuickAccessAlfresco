@@ -422,3 +422,31 @@ Describe "Create-AppData" {
     }
     #Remove-Item "$($appData)"
 }
+
+Describe "Generate-Config" {
+
+    It "Should generate config file" {
+        $generateConfig = Generate-Config
+        $doesConfigFileExist = Test-Path "$appData\config.json"
+        $generateConfig | Should be $doesConfigFileExist
+    }
+    Clean-Up @('*') ".json"
+
+    It "Should not generate config file" {
+        New-Item -ItemType File -Path "$appData\config.json"
+        $generateConfig = Generate-Config
+        $generateConfig | Should be $false
+    }    
+    Clean-Up @('*') ".json"
+
+    It "Should convert params to json" {
+        $mockParams = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false}
+        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
+        $generateConfig = Generate-Config $mockParams
+        $doesConfigFileExist = Test-Path "$appData\config.json"
+        $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
+        $generateConfig | Should be $doesConfigFileExist
+        $getConfigContent | Should BeLike $paramsToJson
+    }
+    Clean-Up @('*') ".json"    
+}

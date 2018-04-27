@@ -225,6 +225,15 @@ function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }
 
+function Generate-Config ($fromParams=@{}) {
+    $doesConfigExist = Test-Path "$appData\config.json"
+    if(!$doesConfigExist){
+        $fromParams | ConvertTo-Json | Set-Content "$appData\config.json"
+        return $true
+    }
+    return $false
+}
+
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
     if (!$disableHomeAndShared) {
