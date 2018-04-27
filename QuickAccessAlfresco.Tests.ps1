@@ -42,6 +42,12 @@ Describe 'domainNameParameter' {
     }
 }
 
+Describe 'disableHomeAndShared' {
+    it  'Should set test disableHomeAndShared param' {
+        (Get-Command "$here\$sut").Parameters['disableHomeAndShared'].ParameterType | Should be bool
+    }
+}
+
 Describe "Create-ScheduledTask" {
     It "Should create a scheduled task" {
         $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")

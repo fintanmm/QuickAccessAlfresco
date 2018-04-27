@@ -3,7 +3,8 @@ Param(
     [String]$mapDomain = "localhost",
     [String]$prependToLinkTitle = "",
     [String]$icon,
-    [String]$protocol = ""
+    [String]$protocol = "",
+    [Boolean]$disableHomeAndShared = $false
 )
 
 $linkBaseDir = "$env:userprofile\Links"
@@ -226,7 +227,9 @@ function Create-AppData {
 
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
-    Create-HomeAndSharedLinks
+    if (!$disableHomeAndShared) {
+        Create-HomeAndSharedLinks                
+    }
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
     Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
