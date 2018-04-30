@@ -310,8 +310,8 @@ Describe 'Create-QuickAccessLinks' {
 }
 
 Describe "CopyIcon" {
-    Clean-Up @('*') ".ico"
 
+    $appData = "TestDrive:\"    
     It "Should copy the icon to the user appData folder." {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
@@ -323,11 +323,10 @@ Describe "CopyIcon" {
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
         $copyIcon | Should be $false
     }    
-    Clean-Up @('*') ".ico"
 }
 
 Describe 'CacheCreate' {
-    Clean-Up @('*') ".cache"
+    $appData = "TestDrive:\"
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
         $createCache.Count | Should be 2
@@ -338,10 +337,10 @@ Describe 'CacheCreate' {
         $createCache = CacheCreate
         $createCache.Name | Should be "5.cache"
     }
-    Clean-Up @('*') ".cache"
 }
 
 Describe 'CacheExists' {  
+    $appData = "TestDrive:\"
     It "Should test that the cache doesn't exists." {
         $cacheExists = CacheExists
         $cacheExists.Count | Should be 0
@@ -352,7 +351,6 @@ Describe 'CacheExists' {
         $cacheExists = CacheExists
         $cacheExists.Name | Should be "5.cache"
     }
-    Clean-Up @('*') ".cache"
 }
 
 Describe 'CacheInit' {
@@ -379,6 +377,7 @@ Describe 'CacheInit' {
 }
 
 Describe 'CacheSizeChanged' {
+    $appData = "TestDrive:\"
     It "Should detect if there is a change in the size of the cache." {
         Mock CacheTimeChange {return 5}
         New-Item "$appData\4.cache" -type file -Force
@@ -415,6 +414,7 @@ Describe "CacheTimeChange" {
 }
 
 Describe "Create-AppData" {
+    $appData = "TestDrive:\QAA"
     It "Should create the AppData folder for QuickAccessAlfresco" {
         $createAppData = Create-AppData
         $doesAppDataExist = Test-Path $appData
@@ -424,16 +424,15 @@ Describe "Create-AppData" {
 }
 
 Describe "Generate-Config" {
+    $appData = "TestDrive:\"
 
     It "Should generate config file" {
         $generateConfig = Generate-Config
         $doesConfigFileExist = Test-Path "$appData\config.json"
         $generateConfig | Should be $doesConfigFileExist
     }
-    Clean-Up @('*') ".json"
 
     It "Should not generate config file" {
-        New-Item -ItemType File -Path "$appData\config.json"
         $generateConfig = Generate-Config
         $generateConfig | Should be $false
     }    
@@ -448,5 +447,4 @@ Describe "Generate-Config" {
         $generateConfig | Should be $doesConfigFileExist
         $getConfigContent | Should BeLike $paramsToJson
     }
-    Clean-Up @('*') ".json"    
 }
