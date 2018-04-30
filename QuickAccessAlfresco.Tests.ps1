@@ -448,3 +448,15 @@ Describe "Generate-Config" {
         $getConfigContent | Should BeLike $paramsToJson
     }
 }
+
+Describe "Read-Config" {
+    $appData = "TestDrive:\"
+
+    It "Should read the config file" {
+        $mockParams = @{"arguments" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+        $mockParams | ConvertTo-Json | Set-Content "$appData\config.json"
+        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
+        $readConfig = Read-Config
+        $readConfig | Should BeLike $paramsToJson        
+    }
+}

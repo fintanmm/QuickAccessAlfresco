@@ -234,6 +234,11 @@ function Generate-Config ($fromParams=@{}) {
     return $false
 }
 
+function Read-Config {
+    $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
+    return $getConfigContent    
+}
+
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
     if (!$disableHomeAndShared) {
