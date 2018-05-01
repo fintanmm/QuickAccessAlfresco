@@ -453,10 +453,21 @@ Describe "Read-Config" {
     $appData = "TestDrive:\"
 
     It "Should read the config file" {
-        $mockParams = @{"arguments" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
         $mockParams | ConvertTo-Json | Set-Content "$appData\config.json"
         $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
         $readConfig = Read-Config
         $readConfig | Should BeLike $paramsToJson        
+    }
+}
+
+Describe "Parse-Config" {
+    $appData = "TestDrive:\"
+    
+    It "Should parse the switches from the config file" {   
+        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+        Mock Read-Config {return $mockParams} 
+        $parseConfig = Parse-Config
+        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"  
     }
 }

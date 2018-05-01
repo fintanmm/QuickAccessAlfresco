@@ -234,6 +234,18 @@ function Generate-Config ($fromParams=@{}) {
     return $false
 }
 
+function Parse-Config {
+    $getConfigContent = Read-Config
+    $switches = $getConfigContent["switches"]
+    $parseSwitches = ""
+    $parseSwitches += $switches.Keys | ForEach-Object { 
+        $value = $switches.Item($_)
+        if(![string]::IsNullOrEmpty($value)){
+            "-{0} '{1}'" -f $_, $value
+        } 
+    }
+    return @{"switches" = $parseSwitches;}
+}
 function Read-Config {
     $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
     return $getConfigContent    
