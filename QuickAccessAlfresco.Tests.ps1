@@ -42,6 +42,12 @@ Describe 'domainNameParameter' {
     }
 }
 
+Describe 'disableHomeAndShared' {
+    it  'Should set test disableHomeAndShared param' {
+        (Get-Command "$here\$sut").Parameters['disableHomeAndShared'].ParameterType | Should be bool
+    }
+}
+
 Describe "Create-ScheduledTask" {
     It "Should create a scheduled task" {
         $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
@@ -304,8 +310,8 @@ Describe 'Create-QuickAccessLinks' {
 }
 
 Describe "CopyIcon" {
-    Clean-Up @('*') ".ico"
 
+    $appData = "TestDrive:\"    
     It "Should copy the icon to the user appData folder." {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
@@ -317,11 +323,10 @@ Describe "CopyIcon" {
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
         $copyIcon | Should be $false
     }    
-    Clean-Up @('*') ".ico"
 }
 
 Describe 'CacheCreate' {
-    Clean-Up @('*') ".cache"
+    $appData = "TestDrive:\"
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
         $createCache.Count | Should be 2
@@ -333,10 +338,10 @@ Describe 'CacheCreate' {
         $createCache = CacheCreate
         $createCache.Name | Should be "5.cache"
     }
-    Clean-Up @('*') ".cache"
 }
 
 Describe 'CacheExists' {  
+    $appData = "TestDrive:\"
     It "Should test that the cache doesn't exists." {
         $cacheExists = CacheExists
         $cacheExists.Count | Should be 0
@@ -347,26 +352,37 @@ Describe 'CacheExists' {
         $cacheExists = CacheExists
         $cacheExists.Name | Should be "5.cache"
     }
-    Clean-Up @('*') ".cache"
 }
 
 Describe 'CacheInit' {
-    It "Should not remove the cache if cache size doesn't change." {
-        Mock CacheSizeChanged {return 5}
+    $cacheFile = @{'Name' = '5.cache';}
+    Mock CacheCreate {return $cacheFile}
+
+    It "Should create cache if cache doesn't exist." {
+        Mock CacheSizeChanged {return $false}
         $CacheInit = CacheInit
+<<<<<<< HEAD
         $CacheInit | Should be $false
+=======
+        $CacheInit.Name | Should Match "5.cache"
+>>>>>>> 3195d0224d3087df7bfbe71110172c1659cba6e4
     }
+
+    It "Should not remove the cache if cache size doesn't change." {
+        Mock CacheSizeChanged {return $false}
+        $CacheInit = CacheInit
+        $CacheInit.Name | Should Match "5.cache"
+    }    
     
     It "Should remove the cache if cache size does change." {
-        Mock CacheExists {return @(1, 2)}
-        Mock CacheSizeChanged {return 4}
-        Mock CacheCreate {return @{"Name"= "5.cache"}}
+        Mock CacheSizeChanged {return $true}
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
     }    
 }
 
 Describe 'CacheSizeChanged' {
+    $appData = "TestDrive:\"
     It "Should detect if there is a change in the size of the cache." {
         Mock CacheTimeChange {return 5}
         New-Item "$appData\4.cache" -type file -Force
@@ -406,10 +422,60 @@ Describe "CacheTimeChange" {
 }
 
 Describe "Create-AppData" {
+    $appData = "TestDrive:\QAA"
     It "Should create the AppData folder for QuickAccessAlfresco" {
         $createAppData = Create-AppData
         $doesAppDataExist = Test-Path $appData
         $createAppData | Should be $doesAppDataExist
     }
     #Remove-Item "$($appData)"
+}
+
+Describe "Generate-Config" {
+    $appData = "TestDrive:\"
+
+    It "Should generate config file" {
+        $generateConfig = Generate-Config
+        $doesConfigFileExist = Test-Path "$appData\config.json"
+        $generateConfig | Should be $doesConfigFileExist
+    }
+
+    It "Should not generate config file" {
+        $generateConfig = Generate-Config
+        $generateConfig | Should be $false
+    }    
+    Clean-Up @('*') ".json"
+
+    It "Should convert params to json" {
+        $mockParams = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false}
+        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
+        $generateConfig = Generate-Config $mockParams
+        $doesConfigFileExist = Test-Path "$appData\config.json"
+        $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
+        $generateConfig | Should be $doesConfigFileExist
+        $getConfigContent | Should BeLike $paramsToJson
+    }
+}
+
+Describe "Read-Config" {
+    $appData = "TestDrive:\"
+
+    It "Should read the config file" {
+        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+        $mockParams | ConvertTo-Json | Set-Content "$appData\config.json"
+        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
+        $readConfig = Read-Config
+        $readConfig | Should BeLike $paramsToJson        
+    }
+}
+
+Describe "Parse-Config" {
+    $appData = "TestDrive:\"
+    
+    It "Should parse the switches from the config file" {   
+        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+        Mock Read-Config {return $mockParams} 
+        $parseConfig = Parse-Config
+        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"  
+    }
 }

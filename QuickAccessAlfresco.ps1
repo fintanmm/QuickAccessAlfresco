@@ -3,7 +3,8 @@ Param(
     [String]$mapDomain = "localhost",
     [String]$prependToLinkTitle = "",
     [String]$icon,
-    [String]$protocol = ""
+    [String]$protocol = "",
+    [Boolean]$disableHomeAndShared = $false
 )
 
 $linkBaseDir = "$env:userprofile\Links"
@@ -163,6 +164,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 }
 
 function CacheInit {
+<<<<<<< HEAD
     $cacheCreate = $false
     $doesCacheExists = CacheExists
 
@@ -174,6 +176,14 @@ function CacheInit {
             $cacheCreate = CacheCreate
         }        
     }
+=======
+    $cacheCreate = CacheCreate
+    
+    if (CacheSizeChanged -eq $true) {
+        Remove-Item "$appData\*.cache"
+        $cacheCreate = CacheCreate 
+    }        
+>>>>>>> 3195d0224d3087df7bfbe71110172c1659cba6e4
     return $cacheCreate
 }
 
@@ -229,9 +239,37 @@ function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }
 
+function Generate-Config ($fromParams=@{}) {
+    $doesConfigExist = Test-Path "$appData\config.json"
+    if(!$doesConfigExist){
+        $fromParams | ConvertTo-Json | Set-Content "$appData\config.json"
+        return $true
+    }
+    return $false
+}
+
+function Parse-Config {
+    $getConfigContent = Read-Config
+    $switches = $getConfigContent["switches"]
+    $parseSwitches = ""
+    $parseSwitches += $switches.Keys | ForEach-Object { 
+        $value = $switches.Item($_)
+        if(![string]::IsNullOrEmpty($value)){
+            "-{0} '{1}'" -f $_, $value
+        } 
+    }
+    return @{"switches" = $parseSwitches;}
+}
+function Read-Config {
+    $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
+    return $getConfigContent    
+}
+
 if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
     Create-AppData
-    Create-HomeAndSharedLinks
+    if (!$disableHomeAndShared) {
+        Create-HomeAndSharedLinks                
+    }
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
     Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
