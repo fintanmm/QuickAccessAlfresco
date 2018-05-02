@@ -165,6 +165,9 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
 function CacheInit {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c0e29cfff94604cade88bc40426d19f7a3ab0c94
     $cacheCreate = $false
     $doesCacheExists = CacheExists
 

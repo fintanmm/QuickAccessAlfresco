@@ -362,10 +362,14 @@ Describe 'CacheInit' {
         Mock CacheSizeChanged {return $false}
         $CacheInit = CacheInit
 <<<<<<< HEAD
+<<<<<<< HEAD
         $CacheInit | Should be $false
 =======
         $CacheInit.Name | Should Match "5.cache"
 >>>>>>> 3195d0224d3087df7bfbe71110172c1659cba6e4
+=======
+        $CacheInit | Should be $false
+>>>>>>> c0e29cfff94604cade88bc40426d19f7a3ab0c94
     }
 
     It "Should not remove the cache if cache size doesn't change." {
