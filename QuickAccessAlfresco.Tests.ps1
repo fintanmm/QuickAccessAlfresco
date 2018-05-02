@@ -331,7 +331,6 @@ Describe 'CacheCreate' {
         $createCache = CacheCreate
         $createCache.Count | Should be 2
     }
-    Clean-Up @('*') ".cache"
 
     It "Should return the cache if it does exists." {
         New-Item "$appData\5.cache" -type file -Force
@@ -361,15 +360,7 @@ Describe 'CacheInit' {
     It "Should create cache if cache doesn't exist." {
         Mock CacheSizeChanged {return $false}
         $CacheInit = CacheInit
-<<<<<<< HEAD
-<<<<<<< HEAD
-        $CacheInit | Should be $false
-=======
         $CacheInit.Name | Should Match "5.cache"
->>>>>>> 3195d0224d3087df7bfbe71110172c1659cba6e4
-=======
-        $CacheInit | Should be $false
->>>>>>> c0e29cfff94604cade88bc40426d19f7a3ab0c94
     }
 
     It "Should not remove the cache if cache size doesn't change." {
@@ -408,20 +399,17 @@ Describe "CacheTimeChange" {
         $lastWriteTime = @{"LastWriteTime" = [datetime]"1/2/14 00:00:00";}
         $cacheTimeChange = CacheTimeChange $lastWriteTime 5
         $cacheTimeChange | Should Be 5
-        Write-Host $lastWriteTime
     }
 
     It "Should detect if the cache has not been modified in the last 10 minutes. If so do not do a web request." {
         $lastWriteTime = @{"LastWriteTime" = get-date;}
         $cacheTimeChange = CacheTimeChange $lastWriteTime
         $cacheTimeChange | Should Be 0
-        Write-Host $lastWriteTime
     }    
 
     It "Should detect if no date is passed to the function. If so do not do a web request." {
         $cacheTimeChange = CacheTimeChange @{}
         $cacheTimeChange | Should Be 0
-        Write-Host $lastWriteTime
     }    
 }
 
