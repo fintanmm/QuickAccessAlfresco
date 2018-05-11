@@ -188,7 +188,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\sites\benchmark\documentLibrary"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\webdav\sites\benchmark\documentLibrary"
     }
 
     Clean-Up @('Home', "Shared", "Benchmark")
@@ -198,7 +198,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Home.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "My Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\user homes\$whoAmI"        
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\webdav\user homes\$whoAmI"
     }
 
     It "Should create a WebDav Quick Access link to Shared." {
@@ -206,7 +206,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "Shared Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\Shared"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\webdav\Shared"
     }
 
     It "Should create a Sharepoint Quick Access link to an Alfresco site." {
@@ -214,7 +214,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\benchmark\documentLibrary"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\benchmark\documentLibrary"
     }
 
     Clean-Up @('Home', "Shared", "Benchmark")
@@ -224,7 +224,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Home.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "My Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\user homes\$whoAmI"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\user homes\$whoAmI"
     }
 
     It "Should create a Sharepoint Quick Access link to Shared." {
@@ -232,7 +232,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "Shared Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\Shared"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\Shared"
     }
 
     Clean-Up @('Home', "Shared")     
@@ -304,7 +304,7 @@ Describe 'Create-QuickAccessLinks' {
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
         $recruitment | Should Not Be "False"
         $createLinks[1].Description | Should Match $convertedJSON[1].description
-        $createLinks[1].TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\Recruitment\documentLibrary"
+        $createLinks[1].TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\Recruitment\documentLibrary"
     }
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")        
 }

@@ -116,13 +116,13 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     if (Test-Path $path) {
         return "False"
     }
-
+    
     $findPath = @{
         "Sites" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName + "\documentLibrary"; 
         "User Homes" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName;
         "Shared" = "\\$mapDomain\Alfresco\$whatPath";
     }
-
+    
     if ($protocol -eq "ftps") {
         $findPath = @{
             "Sites" = "ftps://$mapDomain/alfresco/$whatPath/" + $link.shortName + "/documentLibrary"; 
@@ -131,30 +131,32 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
         }
     } 
     if ($protocol -eq "webdav") {
+        $pathToLower = $whatPath.ToLower()
         $findPath = @{
-            "Sites" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())";
+            "Sites" = "\\$domainName@SSL\alfresco\webdav\$pathToLower\" + $link.shortName + "\documentLibrary"; 
+            "User Homes" = "\\$domainName@SSL\alfresco\webdav\$pathToLower\" + $link.shortName;
+            "Shared" = "\\$domainName@SSL\alfresco\webdav\$pathToLower";
         }
     }     
     if ($protocol -eq "sharepoint") {
+        $pathToLower = $whatPath.ToLower()
         $findPath = @{
-            "Sites" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())";
+            "Sites" = "\\$domainName@SSL\alfresco\aos\$pathToLower\" + $link.shortName + "\documentLibrary"; 
+            "User Homes" = "\\$domainName@SSL\alfresco\aos\$pathToLower\" + $link.shortName;
+            "Shared" = "\\$domainName@SSL\alfresco\aos\$pathToLower";
         }
     }         
 
-    $fullPath = $findPath.Get_Item($whatPath)
+    $targetPath = $findPath.Get_Item($whatPath)
     
-    if ($fullPath.length -eq 0) {
+    if ($targetPath.length -eq 0) {
         return "False"
     }
 
     $wshShell = New-Object -ComObject WScript.Shell
     $shortcut = $wshShell.CreateShortcut("$path")
 
-    $shortcut.TargetPath = $fullPath
+    $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
     if($link.icon){
         $shortcut.IconLocation = "$appData\quickaccess_icon.ico"
