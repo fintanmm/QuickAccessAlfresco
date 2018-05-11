@@ -1,0 +1,35 @@
+[
+  {
+    "url": "/alfresco/service/api/sites/recruitment",
+    "sitePreset": "site-dashboard",
+    "shortName": "recruitment",
+    "title": "Recruitment",
+    "description": "",
+    "node": "/alfresco/service/api/node/workspace/SpacesStore/bf4f4265-21a6-424e-87d3-fb4040f2434a",
+    "tagScope": "/alfresco/service/api/tagscopes/workspace/SpacesStore/bf4f4265-21a6-424e-87d3-fb4040f2434a",
+    "isPublic": false,
+    "visibility": "PRIVATE"
+  },
+  {
+    "url": "/alfresco/service/api/sites/library",
+    "sitePreset": "site-dashboard",
+    "shortName": "library",
+    "title": "Library",
+    "description": "",
+    "node": "/alfresco/service/api/node/workspace/SpacesStore/1d6cf982-385a-4a93-8919-7fc8a5bf57c5",
+    "tagScope": "/alfresco/service/api/tagscopes/workspace/SpacesStore/1d6cf982-385a-4a93-8919-7fc8a5bf57c5",
+    "isPublic": false,
+    "visibility": "MODERATED"
+  },
+  {
+    "url": "/alfresco/service/api/sites/marketing",
+    "sitePreset": "site-dashboard",
+    "shortName": "marketing",
+    "title": "Marketing",
+    "description": "Marketing material for Acme",
+    "node": "/alfresco/service/api/node/workspace/SpacesStore/2ac2ab00-6850-4905-a737-69da4e23d0c3",
+    "tagScope": "/alfresco/service/api/tagscopes/workspace/SpacesStore/2ac2ab00-6850-4905-a737-69da4e23d0c3",
+    "isPublic": true,
+    "visibility": "PUBLIC"
+  }
+]
