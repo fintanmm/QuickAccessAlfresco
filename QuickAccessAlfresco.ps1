@@ -11,8 +11,8 @@ $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessAlfresco"
 
 function Create-ScheduledTask($taskName) {
-
-    $taskFile = ($PSScriptRoot + "\QuickAccessAlfresco.ps1")
+    $config = Parse-Config
+    $taskFile = ($PSScriptRoot + "\QuickAccessAlfresco.ps1 $($config["switches"])")
     $taskIsRunning = schtasks.exe /query /tn $taskName 2>&1
 
     if ($taskIsRunning -match "ERROR") {
@@ -253,8 +253,10 @@ function Read-Config {
     return $getConfigContent    
 }
 
-if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
+if ($domainName -inotmatch 'localh' -or $domainName -inotmatch '') {
     Create-AppData
+    Generate-Config @{"switches" = $PsBoundParameters}
+    Create-ScheduledTask "QuickAccessAlfresco"
     if (!$disableHomeAndShared) {
         Create-HomeAndSharedLinks                
     }

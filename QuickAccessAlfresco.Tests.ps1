@@ -49,6 +49,8 @@ Describe 'disableHomeAndShared' {
 }
 
 Describe "Create-ScheduledTask" {
+    
+    Mock Parse-Config {return @{"switches" = "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '";}}
     It "Should create a scheduled task" {
         $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
         $createScheduledTask | Should BeLike "SUCCESS*"
