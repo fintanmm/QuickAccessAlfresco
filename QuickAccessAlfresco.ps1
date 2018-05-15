@@ -70,7 +70,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
 
     if (![string]::IsNullOrEmpty($icon)) {
         copyIcon -icon $icon
-        $icon = "$appData\quickaccess_icon.ico"
+        $icon = "$appData\$icon"
     }   
 
     $cacheSizeChanged = CacheSizeChanged
@@ -159,7 +159,8 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
     if($link.icon){
-        $shortcut.IconLocation = "$appData\quickaccess_icon.ico"
+        $config = Parse-Config
+        $shortcut.IconLocation = "$appData\$($config['switches']['icon'])"
     }    
     $shortcut.Save()
     return $shortcut

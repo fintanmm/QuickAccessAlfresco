@@ -118,6 +118,7 @@ Describe 'Create-HomeAndSharedLinks' {
 }
 
 Describe 'Create-Link' {
+    Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     It "Should create Quick Access link to Alfresco." {
         $createLink = Create-Link $convertedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
@@ -246,6 +247,7 @@ Describe 'Create-Link' {
 }
   
 Describe 'Create-QuickAccessLinks' {
+    Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
         Mock CacheSizeChanged {return $true}        
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
