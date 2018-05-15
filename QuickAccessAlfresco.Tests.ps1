@@ -468,10 +468,25 @@ Describe "Read-Config" {
 Describe "Parse-Config" {
     $appData = "TestDrive:\"
     
-    It "Should parse the switches from the config file" {   
-        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
-        Mock Read-Config {return $mockParams} 
+    It "Should parse the config file, even when empty" {   
+        $mockConfig = @{"sites" = @(); "switches" = @{};}
+        Mock Read-Config {return $mockConfig} 
         $parseConfig = Parse-Config
-        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"  
+        $parseConfig["switches"] | Should Match ""  
+        $parseConfig["sites"] | Should Match @()  
     }
+
+    $mockConfig = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+
+    It "Should parse the switches from the config file" {   
+        Mock Read-Config {return $mockConfig} 
+        $parseConfig = Parse-Config
+        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"
+    }
+
+    It "Should parse the sites from the config file" {   
+        Mock Read-Config {return $mockConfig} 
+        $parseConfig = Parse-Config
+        $parseConfig["sites"] | Should Be @("benchmark", "marketing", "recruitment")
+    }    
 }
