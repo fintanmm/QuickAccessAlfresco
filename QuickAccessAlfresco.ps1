@@ -266,12 +266,13 @@ function Read-Config {
 
 if ($domainName -inotmatch 'localh' -or $domainName -inotmatch '') {
     Create-AppData
-    Generate-Config @{"switches" = $PsBoundParameters}
+    $fromUrl = Build-Url
+    $listOfSites = Get-ListOfSites $fromUrl
+    Generate-Config @{"switches" = $PsBoundParameters, "sites" = $listOfSites}
+    
     Create-ScheduledTask "QuickAccessAlfresco"
     if (!$disableHomeAndShared) {
         Create-HomeAndSharedLinks                
     }
-    $fromUrl = Build-Url
-    $listOfSites = Get-ListOfSites $fromUrl
     Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
 }
