@@ -49,6 +49,8 @@ Describe 'disableHomeAndShared' {
 }
 
 Describe "Create-ScheduledTask" {
+    
+    Mock Parse-Config {return @{"switches" = "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '";}}
     It "Should create a scheduled task" {
         $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
         $createScheduledTask | Should BeLike "SUCCESS*"
@@ -116,6 +118,7 @@ Describe 'Create-HomeAndSharedLinks' {
 }
 
 Describe 'Create-Link' {
+    Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     It "Should create Quick Access link to Alfresco." {
         $createLink = Create-Link $convertedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
@@ -188,7 +191,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\sites\benchmark\documentLibrary"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\webdav\sites\benchmark\documentLibrary"
     }
 
     Clean-Up @('Home', "Shared", "Benchmark")
@@ -198,7 +201,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Home.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "My Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\user homes\$whoAmI"        
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\webdav\user homes\$whoAmI"
     }
 
     It "Should create a WebDav Quick Access link to Shared." {
@@ -206,7 +209,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "Shared Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\webdav\Shared"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\webdav\Shared"
     }
 
     It "Should create a Sharepoint Quick Access link to an Alfresco site." {
@@ -214,7 +217,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match $convertedJSON[0].description
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\benchmark\documentLibrary"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\benchmark\documentLibrary"
     }
 
     Clean-Up @('Home', "Shared", "Benchmark")
@@ -224,7 +227,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Home.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "My Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\user homes\$whoAmI"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\user homes\$whoAmI"
     }
 
     It "Should create a Sharepoint Quick Access link to Shared." {
@@ -232,7 +235,7 @@ Describe 'Create-Link' {
         $result = Test-Path "$env:userprofile\Links\Shared.lnk"       
         $createLink | Should be $result
         $createLink.Description | Should Match "Shared Files"
-        $createLink.TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\Shared"
+        $createLink.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\Shared"
     }
 
     Clean-Up @('Home', "Shared")     
@@ -244,6 +247,7 @@ Describe 'Create-Link' {
 }
   
 Describe 'Create-QuickAccessLinks' {
+    Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
         Mock CacheSizeChanged {return $true}        
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
@@ -304,7 +308,7 @@ Describe 'Create-QuickAccessLinks' {
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
         $recruitment | Should Not Be "False"
         $createLinks[1].Description | Should Match $convertedJSON[1].description
-        $createLinks[1].TargetPath | Should BeLike "\\localhost:8443\alfresco\aos\sites\Recruitment\documentLibrary"
+        $createLinks[1].TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\Recruitment\documentLibrary"
     }
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")        
 }
@@ -464,10 +468,25 @@ Describe "Read-Config" {
 Describe "Parse-Config" {
     $appData = "TestDrive:\"
     
-    It "Should parse the switches from the config file" {   
-        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
-        Mock Read-Config {return $mockParams} 
+    It "Should parse the config file, even when empty" {   
+        $mockConfig = @{"sites" = @(); "switches" = @{};}
+        Mock Read-Config {return $mockConfig} 
         $parseConfig = Parse-Config
-        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"  
+        $parseConfig["switches"] | Should Match ""  
+        $parseConfig["sites"] | Should Match @()  
     }
+
+    $mockConfig = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+
+    It "Should parse the switches from the config file" {   
+        Mock Read-Config {return $mockConfig} 
+        $parseConfig = Parse-Config
+        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"
+    }
+
+    It "Should parse the sites from the config file" {   
+        Mock Read-Config {return $mockConfig} 
+        $parseConfig = Parse-Config
+        $parseConfig["sites"] | Should Be @("benchmark", "marketing", "recruitment")
+    }    
 }

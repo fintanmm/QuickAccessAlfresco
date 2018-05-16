@@ -11,8 +11,8 @@ $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessAlfresco"
 
 function Create-ScheduledTask($taskName) {
-
-    $taskFile = ($PSScriptRoot + "\QuickAccessAlfresco.ps1")
+    $config = Parse-Config
+    $taskFile = ($PSScriptRoot + "\QuickAccessAlfresco.ps1 $($config["switches"])")
     $taskIsRunning = schtasks.exe /query /tn $taskName 2>&1
 
     if ($taskIsRunning -match "ERROR") {
@@ -70,7 +70,7 @@ function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
 
     if (![string]::IsNullOrEmpty($icon)) {
         copyIcon -icon $icon
-        $icon = "$appData\quickaccess_icon.ico"
+        $icon = "$appData\$icon"
     }   
 
     $cacheSizeChanged = CacheSizeChanged
@@ -116,13 +116,13 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     if (Test-Path $path) {
         return $false
     }
-
+    
     $findPath = @{
         "Sites" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName + "\documentLibrary"; 
         "User Homes" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName;
         "Shared" = "\\$mapDomain\Alfresco\$whatPath";
     }
-
+    
     if ($protocol -eq "ftps") {
         $findPath = @{
             "Sites" = "ftps://$mapDomain/alfresco/$whatPath/" + $link.shortName + "/documentLibrary"; 
@@ -131,33 +131,41 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
         }
     } 
     if ($protocol -eq "webdav") {
+        $pathToLower = $whatPath.ToLower()
         $findPath = @{
-            "Sites" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "file://$domainName/alfresco/webdav/$($whatPath.ToLower())";
+            "Sites" = "\\$domainName@SSL\alfresco\webdav\$pathToLower\" + $link.shortName + "\documentLibrary"; 
+            "User Homes" = "\\$domainName@SSL\alfresco\webdav\$pathToLower\" + $link.shortName;
+            "Shared" = "\\$domainName@SSL\alfresco\webdav\$pathToLower";
         }
     }     
     if ($protocol -eq "sharepoint") {
+        $pathToLower = $whatPath.ToLower()
         $findPath = @{
-            "Sites" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName + "/documentLibrary"; 
-            "User Homes" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())/" + $link.shortName;
-            "Shared" = "file://$domainName/alfresco/aos/$($whatPath.ToLower())";
+            "Sites" = "\\$domainName@SSL\alfresco\aos\$pathToLower\" + $link.shortName + "\documentLibrary"; 
+            "User Homes" = "\\$domainName@SSL\alfresco\aos\$pathToLower\" + $link.shortName;
+            "Shared" = "\\$domainName@SSL\alfresco\aos\$pathToLower";
         }
     }         
 
-    $fullPath = $findPath.Get_Item($whatPath)
+    $targetPath = $findPath.Get_Item($whatPath)
     
+<<<<<<< HEAD
     if ($fullPath.length -eq 0) {
         return $false
+=======
+    if ($targetPath.length -eq 0) {
+        return "False"
+>>>>>>> 158887b825ce2bf9b09d9f4868654736e6e1ebde
     }
 
     $wshShell = New-Object -ComObject WScript.Shell
     $shortcut = $wshShell.CreateShortcut("$path")
 
-    $shortcut.TargetPath = $fullPath
+    $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
     if($link.icon){
-        $shortcut.IconLocation = "$appData\quickaccess_icon.ico"
+        $config = Parse-Config
+        $shortcut.IconLocation = "$appData\$($config['switches']['icon'])"
     }    
     $shortcut.Save()
     return $shortcut
@@ -254,6 +262,7 @@ function Generate-Config ($fromParams=@{}) {
 function Parse-Config {
     $getConfigContent = Read-Config
     $switches = $getConfigContent["switches"]
+    $sites = $getConfigContent["sites"]
     $parseSwitches = ""
     $parseSwitches += $switches.Keys | ForEach-Object { 
         $value = $switches.Item($_)
@@ -261,15 +270,26 @@ function Parse-Config {
             "-{0} '{1}'" -f $_, $value
         } 
     }
-    return @{"switches" = $parseSwitches;}
+    $parseSites = @(0) * $sites.Count
+    for ($i = 0; $i -lt $sites.Count; $i++) {
+        $sites[$i].Keys | ForEach-Object { 
+            $value = $sites[$i].Item($_)
+            if(![string]::IsNullOrEmpty($value) -and $_ -eq "shortName"){
+                $parseSites[$i] = $value
+            } 
+        }         
+    }
+    return @{"switches" = $parseSwitches; "sites" = $parseSites;}
 }
 function Read-Config {
     $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
     return $getConfigContent    
 }
 
-if ($domainName -inotmatch 'localh' -or  $domainName -inotmatch '') {
+if ($domainName -inotmatch 'localh' -or $domainName -inotmatch '') {
     Create-AppData
+    Generate-Config @{"switches" = $PsBoundParameters}
+    Create-ScheduledTask "QuickAccessAlfresco"
     if (!$disableHomeAndShared) {
         Create-HomeAndSharedLinks                
     }
