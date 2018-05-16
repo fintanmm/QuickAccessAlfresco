@@ -8,9 +8,9 @@ $whoAmI = $env:UserName
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessAlfresco"
 $url = "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/"
-$convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
-$convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
-$homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
+$convertedJSON = @(@{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";})
+$convertedCachedJSON = @(@{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";})
+$homeAndShared = @(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;}, @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
 
 function setUp {
     New-Item -ItemType Directory -Force -Path $appData
@@ -457,11 +457,12 @@ Describe "Read-Config" {
     $appData = "TestDrive:\"
 
     It "Should read the config file" {
-        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
-        $mockParams | ConvertTo-Json | Set-Content "$appData\config.json"
-        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
+        $mockConfig = [PSCustomObject]@{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+        $mockConfig | ConvertTo-Json -depth 1 | Set-Content -Path "$appData\config.json"
+        $mockConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
         $readConfig = Read-Config
-        $readConfig | Should BeLike $paramsToJson        
+        $readConfig.switches | Should Match $mockConfigContent.switches
+        $readConfig.sites | Should Be $mockConfigContent.sites
     }
 }
 
@@ -476,7 +477,7 @@ Describe "Parse-Config" {
         $parseConfig["sites"] | Should Match @()  
     }
 
-    $mockConfig = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+    $mockConfig = [PSCustomObject]@{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
 
     It "Should parse the switches from the config file" {   
         Mock Read-Config {return $mockConfig} 

@@ -239,8 +239,8 @@ function Generate-Config ($fromParams=@{}) {
 
 function Parse-Config {
     $getConfigContent = Read-Config
-    $switches = $getConfigContent["switches"]
-    $sites = $getConfigContent["sites"]
+    $switches = $getConfigContent.switches
+    $sites = $getConfigContent.sites
     $parseSwitches = ""
     $parseSwitches += $switches.Keys | ForEach-Object { 
         $value = $switches.Item($_)
