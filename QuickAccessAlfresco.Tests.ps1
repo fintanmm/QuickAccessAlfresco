@@ -118,7 +118,7 @@ Describe 'Create-HomeAndSharedLinks' {
 }
 
 Describe 'Create-Link' {
-    Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
+    Mock Parse-Config {return @{"switches" = @{"icon" = "\\some\where\over\the\rainbow\quickaccess_icon.ico";};} }
     It "Should create Quick Access link to Alfresco." {
         $createLink = Create-Link $convertedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
