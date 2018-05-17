@@ -240,7 +240,6 @@ function Generate-Config ($fromParams=@{}) {
 function Parse-Config {
     $getConfigContent = Read-Config
     $switches = $getConfigContent.switches
-    $sites = $getConfigContent.sites
     $parseSwitches = ""
     $parseSwitches += $switches.Keys | ForEach-Object { 
         $value = $switches.Item($_)
@@ -248,6 +247,8 @@ function Parse-Config {
             "-{0} '{1}'" -f $_, $value
         } 
     }
+
+    $sites = $getConfigContent.sites
     $parseSites = @(0) * $sites.Count
     for ($i = 0; $i -lt $sites.Count; $i++) {
         $sites[$i].Keys | ForEach-Object { 
@@ -268,8 +269,8 @@ if ($domainName -inotmatch 'localh' -or $domainName -inotmatch '') {
     Create-AppData
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
-    Generate-Config @{"switches" = $PsBoundParameters, "sites" = $listOfSites}
-    
+    Generate-Config @{"switches" = $PsBoundParameters; "sites" = $listOfSites}
+
     Create-ScheduledTask "QuickAccessAlfresco"
     if (!$disableHomeAndShared) {
         Create-HomeAndSharedLinks                

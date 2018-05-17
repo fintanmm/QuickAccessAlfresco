@@ -424,32 +424,31 @@ Describe "Create-AppData" {
         $doesAppDataExist = Test-Path $appData
         $createAppData | Should be $doesAppDataExist
     }
-    #Remove-Item "$($appData)"
+    # Remove-Item "$($appData)"
 }
 
 Describe "Generate-Config" {
     $appData = "TestDrive:\"
+    $mockParams = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
 
     It "Should generate config file" {
-        $generateConfig = Generate-Config
+        $generateConfig = Generate-Config $mockParams
         $doesConfigFileExist = Test-Path "$appData\config.json"
         $generateConfig | Should be $doesConfigFileExist
     }
 
     It "Should not generate config file" {
-        $generateConfig = Generate-Config
+        $generateConfig = Generate-Config $mockParams
         $generateConfig | Should be $false
     }    
     Clean-Up @('*') ".json"
 
     It "Should convert params to json" {
-        $mockParams = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false}
-        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
         $generateConfig = Generate-Config $mockParams
         $doesConfigFileExist = Test-Path "$appData\config.json"
         $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
         $generateConfig | Should be $doesConfigFileExist
-        $getConfigContent | Should BeLike $paramsToJson
+        $getConfigContent | Should Be $getConfigContent
     }
 }
 
