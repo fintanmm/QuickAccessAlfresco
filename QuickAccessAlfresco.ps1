@@ -225,6 +225,21 @@ function CacheExists {
     return $cacheFile
 }
 
+function Delete-Links ($links) {
+    $readConfig = Read-Config
+    $prependToLinkTitle = $readConfig.switches
+    $title = $prependToLinkTitle['prependToLinkTitle']
+    for ($i = 0; $i -lt $links.Count; $i++) {
+        $pathToLnk = "$appData\$($links[$i]['title']).lnk"
+        if (![string]::IsNullOrEmpty($title)) {
+            $pathToLnk = "$appData\{0}{1}.lnk" -f $title, $links[$i]['title']
+        }
+        if (Test-Path $pathToLnk) {
+            Remove-Item $pathToLnk
+        }
+    }
+}
+
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }

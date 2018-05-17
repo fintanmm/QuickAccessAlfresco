@@ -417,6 +417,32 @@ Describe "CacheTimeChange" {
     }    
 }
 
+Describe "Delete-Links" {
+    $appData = "TestDrive:\"
+    $mockConfig = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+    Mock Read-Config {return [PSCustomObject]$mockConfig}
+    It "Should delete a list of links with a title prepended" {
+        for ($i = 0; $i -lt $convertedJSON.Count; $i++) {
+            $path = "$appData\{0}{1}.lnk" -f "Alfresco Sites - ", $convertedJSON[$i]['title']
+            New-Item -Path $path
+        }
+        Delete-Links $convertedJSON
+        $countFiles = $(Get-ChildItem -Path $appData).Count
+        $countFiles | Should Be 0
+    }
+
+    $mockConfig = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+    Mock Read-Config {return [PSCustomObject]$mockConfig}
+    It "Should delete a list of links" {
+        for ($i = 0; $i -lt $convertedJSON.Count; $i++) {
+            New-Item -Path "$appData\$($convertedJSON[$i]['title']).lnk"
+        }
+        Delete-Links $convertedJSON
+        $countFiles = $(Get-ChildItem -Path $appData).Count
+        $countFiles | Should Be 0
+    }    
+}
+
 Describe "Create-AppData" {
     $appData = "TestDrive:\QAA"
     It "Should create the AppData folder for QuickAccessAlfresco" {
