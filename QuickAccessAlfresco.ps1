@@ -242,27 +242,23 @@ function Parse-Config {
     $getConfigContent = Read-Config
     $switches = $getConfigContent.switches
     $parseSwitches = ""
-    $parseSwitches += $switches.Keys | ForEach-Object { 
-        $value = $switches.Item($_)
-        if(![string]::IsNullOrEmpty($value)){
-            "-{0} '{1}'" -f $_, $value
-        } 
+    $switches.GetEnumerator() | ForEach-Object{
+        $parseSwitches += "-{0} '{1}' " -f $_.key, $_.value
     }
 
     $sites = $getConfigContent.sites
     $parseSites = @(0) * $sites.Count
     for ($i = 0; $i -lt $sites.Count; $i++) {
-        $sites[$i].Keys | ForEach-Object { 
-            $value = $sites[$i].Item($_)
-            if(![string]::IsNullOrEmpty($value) -and $_ -eq "shortName"){
-                $parseSites[$i] = $value
-            } 
+        $sites[$i].GetEnumerator() | ForEach-Object { 
+            if ($_.key -eq "title") {
+                $parseSites[$i] = $_.value
+            }
         }         
     }
     return @{"switches" = $parseSwitches; "sites" = $parseSites;}
 }
 function Read-Config {
-    $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
+    $getConfigContent = Get-Content -Path "$appData\config.json" | Out-String | ConvertFrom-Json
     return $getConfigContent    
 }
 
