@@ -242,18 +242,16 @@ function Parse-Config {
     $getConfigContent = Read-Config
     $switches = $getConfigContent.switches
     $parseSwitches = ""
-    $switches.GetEnumerator() | ForEach-Object{
-        $parseSwitches += "-{0} '{1}' " -f $_.key, $_.value
+    $switches.psobject.properties.name | ForEach-Object{
+        $parseSwitches += "-{0} '{1}' " -f $_, $switches.$_
     }
 
     $sites = $getConfigContent.sites
     $parseSites = @(0) * $sites.Count
     for ($i = 0; $i -lt $sites.Count; $i++) {
-        $sites[$i].GetEnumerator() | ForEach-Object { 
-            if ($_.key -eq "title") {
-                $parseSites[$i] = $_.value
-            }
-        }         
+        if ($sites[$i].title) {
+            $parseSites[$i] = $sites[$i].title
+        }
     }
     return @{"switches" = $parseSwitches; "sites" = $parseSites;}
 }

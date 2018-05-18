@@ -476,12 +476,12 @@ Describe "Parse-Config" {
         $parseConfig["sites"] | Should Match @()  
     }
 
-    $mockConfig = [PSCustomObject]@{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+    $mockConfig = [PSCustomObject]@{"sites" = [PSCustomObject]$convertedJSON; "switches" = [PSCustomObject]@{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
 
     It "Should parse the switches from the config file" {   
         Mock Read-Config {return $mockConfig} 
         $parseConfig = Parse-Config
-        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"
+        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - ' -icon '' -protocol '' -disableHomeAndShared 'False' "
     }
 
     It "Should parse the sites from the config file" {   
