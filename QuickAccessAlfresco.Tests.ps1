@@ -288,7 +288,7 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 
     It "Should add an icon to all Quick Access links to sites within Alfresco" {
-        $createLinks = Create-QuickAccessLinks -links $convertedJSON -icon "quickaccess_icon.ico"
+        $createLinks = Create-QuickAccessLinks -links $convertedJSON -icon ".\quickaccess_icon.ico"
         
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $benchmark | Should Not Be "False"

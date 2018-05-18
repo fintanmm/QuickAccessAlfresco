@@ -159,7 +159,8 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
     if($link.icon){
-        $shortcut.IconLocation = $link.icon
+        $iconLocation = "$appData\{0}" -f $link.icon.Split('\')[-1]
+        $shortcut.IconLocation = $iconLocation
     }    
     $shortcut.Save()
     return $shortcut
