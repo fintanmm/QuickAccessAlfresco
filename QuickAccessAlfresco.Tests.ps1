@@ -490,3 +490,10 @@ Describe "Parse-Config" {
         $parseConfig["sites"] | Should Be @("benchmark", "marketing", "recruitment")
     }    
 }
+
+Describe "Check-PSVersion" {
+    It "Should check the PowerShell version is greater or equal than 3."{
+        $psVersion = Check-PSVersion
+        $psVersion | Should be $true
+    }
+}

@@ -259,7 +259,15 @@ function Read-Config {
     return $getConfigContent    
 }
 
-if ($domainName -inotmatch 'localh' -or $domainName -inotmatch '') {
+function Check-PSversion {
+    if ($PSVersionTable.PSVersion.Major -gt 2) {
+        return $true
+    }
+    return $false
+}
+
+$psVersion = Check-PSversion
+if ($domainName -inotmatch 'localhost' -and $psVersion) {
     Create-AppData
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
