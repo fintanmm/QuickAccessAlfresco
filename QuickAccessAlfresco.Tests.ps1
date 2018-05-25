@@ -64,7 +64,9 @@ Describe "Create-ScheduledTask" {
 }
 
 Describe 'Build-Url' {
-  It "Should build the URL for connecting to Alfresco." {
+    Mock WhoAm-I {return $whoAmI }
+    
+    It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should Be $url
   }
 
@@ -72,6 +74,15 @@ Describe 'Build-Url' {
     $urlWithParams = Build-Url "hello=world"
     $urlWithParams | Should Be "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/?hello=world"
   }
+}
+
+Describe "WhoAm-I" {
+    It "Should get the case sensitive username." {     
+        Mock SearchAD {return $env:UserName}
+
+        $whoAmI = WhoAm-I
+        $whoAmI | Should be $env:UserName
+    }
 }
 
 Describe 'Set-SecurityProtocols' {
@@ -248,6 +259,7 @@ Describe 'Create-Link' {
   
 Describe 'Create-QuickAccessLinks' {
     Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
+    Mock WhoAm-I {return $whoAmI }
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
         Mock CacheSizeChanged {return $true}        
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
@@ -331,6 +343,7 @@ Describe "CopyIcon" {
 
 Describe 'CacheCreate' {
     $appData = "TestDrive:\"
+    Mock WhoAm-I {return $whoAmI }    
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
         $createCache.Count | Should be 2
@@ -372,12 +385,12 @@ Describe 'CacheInit' {
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
     }    
-    
+
     It "Should remove the cache if cache size does change." {
         Mock CacheSizeChanged {return $true}
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
-    }    
+    }        
 }
 
 Describe 'CacheSizeChanged' {
@@ -399,6 +412,8 @@ Describe 'CacheSizeChanged' {
 }
 
 Describe "CacheTimeChange" {
+    Mock WhoAm-I {return $whoAmI }
+    
     It "Should detect if the cache has been modified in the last 10 minutes. If so do a web request." {
         $lastWriteTime = @{"LastWriteTime" = [datetime]"1/2/14 00:00:00";}
         $cacheTimeChange = CacheTimeChange $lastWriteTime 5

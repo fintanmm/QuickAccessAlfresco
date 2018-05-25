@@ -26,13 +26,23 @@ function Create-ScheduledTask($taskName) {
 }
 
 function Build-Url([String] $urlParams="") {
-    $whoAmI = $env:UserName
+    $whoAmI = WhoAm-I
     $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
     
     if ($urlParams) {
         $url = "$($url)?$($urlParams)"
     }
     return $url
+}
+
+function WhoAm-I {
+    return SearchAD
+}
+function SearchAD {
+    $user = $env:UserName
+    $searchAD = New-Object [adsisearcher]"(&(objectCategory=person)(objectClass=user)(samaccountname=$user))"
+    $whoAmI = $searchAD.FindOne()
+    return $whoAmI.Properties.samacountname
 }
 
 function Set-SecurityProtocols ($protocols="Tls,Tls11,Tls12") {
