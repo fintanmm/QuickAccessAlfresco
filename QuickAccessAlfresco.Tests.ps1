@@ -260,12 +260,13 @@ Describe 'Create-Link' {
 Describe 'Create-QuickAccessLinks' {
     Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     Mock WhoAm-I {return $whoAmI }
+    
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
         Mock CacheSizeChanged {return $true}        
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
     }
-
+        
     It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
         Mock CacheSizeChanged {return $true}                
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
@@ -274,7 +275,6 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks.Count | Should Be 2
     }
-
     Clean-Up @("Benchmark", "Recruitment")
 
     It "Should create all Quick Access links to sites within Alfresco" {
@@ -322,7 +322,18 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks[1].Description | Should Match $convertedJSON[1].description
         $createLinks[1].TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\Recruitment\documentLibrary"
     }
-    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")        
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
+    
+    It "Should use the SharePoint protocol to setup Quick Access links to one site within Alfresco" {
+        Mock CacheTimeChange {return 1}
+        $createLinks = Create-QuickAccessLinks -links @($convertedJSON[0]) -protocol "sharepoint"
+        $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
+        $benchmark | Should Not Be "False"
+        $createLinks.Description | Should Match $convertedJSON[0].description
+        $createLinks.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\Benchmark\documentLibrary"
+        # $env:userprofile = $reset
+    }
+    Clean-Up @('Alfresco - Benchmark')            
 }
 
 Describe "CopyIcon" {
@@ -349,11 +360,19 @@ Describe 'CacheCreate' {
         $createCache.Count | Should be 2
     }
 
+    It "Should return empty cache if it does exists." {
+        Mock Get-ListOfSites {return @() } 
+        rm "$appData\*.cache"
+        $createCache = CacheCreate
+        $createCache.Name | Should be "0.cache"
+        rm "$appData\*.cache"
+    }  
+
     It "Should return the cache if it does exists." {
         New-Item "$appData\5.cache" -type file -Force
         $createCache = CacheCreate
         $createCache.Name | Should be "5.cache"
-    }
+    }  
 }
 
 Describe 'CacheExists' {  
