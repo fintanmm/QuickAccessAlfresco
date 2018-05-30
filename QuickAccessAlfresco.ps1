@@ -40,7 +40,7 @@ function WhoAm-I {
 }
 function SearchAD {
     $user = $env:UserName
-    $searchAD = New-Object [adsisearcher]"(&(objectCategory=person)(objectClass=user)(samaccountname=$user))"
+    $searchAD = [adsisearcher]"(&(objectCategory=person)(objectClass=user)(samaccountname=$user))"
     $whoAmI = $searchAD.FindOne()
     return $whoAmI.Properties.samaccountname
 }
