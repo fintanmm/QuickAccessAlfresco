@@ -331,7 +331,6 @@ Describe 'Create-QuickAccessLinks' {
         $benchmark | Should Not Be "False"
         $createLinks.Description | Should Match $convertedJSON[0].description
         $createLinks.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\Benchmark\documentLibrary"
-        # $env:userprofile = $reset
     }
     Clean-Up @('Alfresco - Benchmark')            
 }
