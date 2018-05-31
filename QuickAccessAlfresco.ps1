@@ -68,7 +68,7 @@ function Create-HomeAndSharedLinks {
    $links = @{}
    $cacheExists = CacheExists
    if ($cacheExists.Count -eq 0) {
-        $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes" -protocol $protocol
+        $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = WhoAm-I;} "User Homes" -protocol $protocol
         $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared" -protocol $protocol
        
    }
