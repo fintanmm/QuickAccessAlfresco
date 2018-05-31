@@ -110,6 +110,8 @@ Describe 'Get-ListOfSites' {
 }
 
 Describe 'Create-HomeAndSharedLinks' {    
+    Mock WhoAm-I {return $whoAmI }
+    
     It "Should not create links for the user home and shared because of the cache." {
         Mock CacheExists {return @(1, 2)}
         $createHomeAndShared = Create-HomeAndSharedLinks 
