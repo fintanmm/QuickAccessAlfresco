@@ -360,7 +360,7 @@ Describe 'CacheCreate' {
     }
 
     It "Should return empty cache if it does exists." {
-        Mock Get-ListOfSites {return @() } 
+        Mock Get-ListOfSites {return [PSCustomObject]@{} } 
         rm "$appData\*.cache"
         $createCache = CacheCreate
         $createCache.Name | Should be "0.cache"
