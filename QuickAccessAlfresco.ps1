@@ -16,7 +16,7 @@ function Create-ScheduledTask($taskName) {
     $taskIsRunning = schtasks.exe /query /tn $taskName 2>&1
 
     if ($taskIsRunning -match "ERROR") {
-        $createTask = schtasks.exe /create /tn "$taskName" /sc HOURLY /tr "powershell.exe -executionpolicy bypass -Noninteractive -file $taskFile" /f 2>&1
+        $createTask = schtasks.exe /create /tn "$taskName" /sc HOURLY /tr "powershell.exe -executionpolicy bypass -Noninteractive -Command $taskFile" /f 2>&1
 
         if ($createTask -match "SUCCESS") {
             return $createTask
@@ -75,7 +75,7 @@ function Create-HomeAndSharedLinks {
    return $links
 }
 
-function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
+function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol="") {
     $createdLinks = @()
 
     if (![string]::IsNullOrEmpty($icon)) {
