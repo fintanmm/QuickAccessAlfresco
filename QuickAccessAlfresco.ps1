@@ -93,7 +93,7 @@ function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol
                 Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name icon -Value $icon -Force
             }            
             $addLink = Create-Link $links[$i] -protocol $protocol
-            if ($addLink -ne "False") {
+            if ($addLink -ne $false) {
                 $createdLinks += $addLink
             }
         }
@@ -114,7 +114,7 @@ function CopyIcon($icon="") {
 function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     if ($link.Count -eq 0) {
-        return "False"
+        return $false
     }
 
     $path = "$linkBaseDir\$($link.title).lnk"
@@ -124,7 +124,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     }
  
     if (Test-Path $path) {
-        return "False"
+        return $false
     }
     
     $findPath = @{
@@ -160,7 +160,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     $targetPath = $findPath.Get_Item($whatPath)
     
     if ($targetPath.length -eq 0) {
-        return "False"
+        return $false
     }
 
     $wshShell = New-Object -ComObject WScript.Shell
