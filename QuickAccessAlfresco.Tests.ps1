@@ -358,7 +358,7 @@ Describe 'CacheCreate' {
     Mock WhoAm-I {return $whoAmI }    
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
-        $createCache.Count | Should be 2
+        $createCache.Name | Should be "5.cache"
     }
 
     It "Should return empty cache if it does exists." {

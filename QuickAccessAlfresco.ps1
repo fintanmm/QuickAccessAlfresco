@@ -221,7 +221,7 @@ function CacheCreate {
         $fromUrl = Build-Url
         $sites = Get-ListOfSites $fromUrl
         $count = $(If ($sites.Count) {$sites.Count} Else {0}) 
-        New-Item "$appData\$($count).cache" -type file -Force
+        New-Item "$appData\$($count).cache" -type file -Force | Out-Null          
         $cacheExists = CacheExists
     }
     return $cacheExists
