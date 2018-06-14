@@ -16,7 +16,7 @@ function Create-ScheduledTask($taskName) {
     $taskIsRunning = schtasks.exe /query /tn $taskName 2>&1
 
     if ($taskIsRunning -match "ERROR") {
-        $createTask = schtasks.exe /create /tn "$taskName" /sc HOURLY /tr "powershell.exe $taskFile" /f 2>&1
+        $createTask = schtasks.exe /create /tn "$taskName" /sc HOURLY /tr "powershell.exe -executionpolicy bypass -Noninteractive -Command $taskFile" /f 2>&1
 
         if ($createTask -match "SUCCESS") {
             return $createTask
@@ -26,13 +26,23 @@ function Create-ScheduledTask($taskName) {
 }
 
 function Build-Url([String] $urlParams="") {
-    $whoAmI = $env:UserName
+    $whoAmI = WhoAm-I
     $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
     
     if ($urlParams) {
         $url = "$($url)?$($urlParams)"
     }
     return $url
+}
+
+function WhoAm-I {
+    return SearchAD
+}
+function SearchAD {
+    $user = $env:UserName
+    $searchAD = [adsisearcher]"(&(objectCategory=person)(objectClass=user)(samaccountname=$user))"
+    $whoAmI = $searchAD.FindOne()
+    return $whoAmI.Properties.samaccountname
 }
 
 function Set-SecurityProtocols ($protocols="Tls,Tls11,Tls12") {
@@ -58,14 +68,14 @@ function Create-HomeAndSharedLinks {
    $links = @{}
    $cacheExists = CacheExists
    if ($cacheExists.Count -eq 0) {
-        $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;} "User Homes" -protocol $protocol
+        $links[0] = Create-Link @{"title" = "Home"; "description" = "My Files"; "shortName" = WhoAm-I;} "User Homes" -protocol $protocol
         $links[1] = Create-Link @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";} "Shared" -protocol $protocol
        
    }
    return $links
 }
 
-function Create-QuickAccessLinks($links, $prepend="", $icon="", $protocol="") {
+function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol="") {
     $createdLinks = @()
 
     if (![string]::IsNullOrEmpty($icon)) {
@@ -103,6 +113,7 @@ function CopyIcon($icon="") {
  
 function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
+    $alfresco = "Alfresco - "
     if ($link.Count -eq 0) {
         return $false
     }
@@ -149,13 +160,8 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     $targetPath = $findPath.Get_Item($whatPath)
     
-<<<<<<< HEAD
-    if ($fullPath.length -eq 0) {
-        return $false
-=======
     if ($targetPath.length -eq 0) {
-        return "False"
->>>>>>> 158887b825ce2bf9b09d9f4868654736e6e1ebde
+        return $false
     }
 
     $wshShell = New-Object -ComObject WScript.Shell
@@ -164,37 +170,20 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
     if($link.icon){
-        $config = Parse-Config
-        $shortcut.IconLocation = "$appData\$($config['switches']['icon'])"
-    }    
+        $iconLocation = "$appData\{0}" -f $link.icon.Split('\')[-1]
+        $shortcut.IconLocation = $iconLocation
+    }
     $shortcut.Save()
     return $shortcut
 }
 
 function CacheInit {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> c0e29cfff94604cade88bc40426d19f7a3ab0c94
-    $cacheCreate = $false
-    $doesCacheExists = CacheExists
-
-    if ($doesCacheExists.Count -gt 0) { # Check cache is current
-        $cacheSizeChanged = CacheSizeChanged
-
-        if ($cacheSizeChanged -or ($doesCacheExists.Count -gt 0)) {
-            Remove-Item "$appData\*.cache"
-            $cacheCreate = CacheCreate
-        }        
-    }
-=======
     $cacheCreate = CacheCreate
     
     if (CacheSizeChanged -eq $true) {
         Remove-Item "$appData\*.cache"
         $cacheCreate = CacheCreate 
     }        
->>>>>>> 3195d0224d3087df7bfbe71110172c1659cba6e4
     return $cacheCreate
 }
 
@@ -230,9 +219,10 @@ function CacheTimeChange($lastWriteTime, $countliveSites = 0, $index="") {
 function CacheCreate {
     $cacheExists = CacheExists
     if ($cacheExists.Count -eq 0) {
-        $url = Build-Url
-        $sites = Get-ListOfSites -url $url
-        New-Item "$appData\$($sites.Count).cache" -type file
+        $fromUrl = Build-Url
+        $sites = Get-ListOfSites $fromUrl
+        $count = $(If ($sites.Count) {$sites.Count} Else {0}) 
+        New-Item "$appData\$($count).cache" -type file -Force | Out-Null
         $cacheExists = CacheExists
     }
     return $cacheExists
@@ -245,7 +235,6 @@ function CacheExists {
     }
     return $cacheFile
 }
-
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }
@@ -261,39 +250,70 @@ function Generate-Config ($fromParams=@{}) {
 
 function Parse-Config {
     $getConfigContent = Read-Config
-    $switches = $getConfigContent["switches"]
-    $sites = $getConfigContent["sites"]
+    $switches = $getConfigContent.switches
     $parseSwitches = ""
-    $parseSwitches += $switches.Keys | ForEach-Object { 
-        $value = $switches.Item($_)
-        if(![string]::IsNullOrEmpty($value)){
-            "-{0} '{1}'" -f $_, $value
-        } 
+    $switches.psobject.properties.name | ForEach-Object{
+        $parseSwitches += "-{0} '{1}' " -f $_, $switches.$_
     }
+
+    $sites = $getConfigContent.sites
     $parseSites = @(0) * $sites.Count
     for ($i = 0; $i -lt $sites.Count; $i++) {
-        $sites[$i].Keys | ForEach-Object { 
-            $value = $sites[$i].Item($_)
-            if(![string]::IsNullOrEmpty($value) -and $_ -eq "shortName"){
-                $parseSites[$i] = $value
-            } 
-        }         
+        if ($sites[$i].title) {
+            $parseSites[$i] = $sites[$i].title
+        }
     }
     return @{"switches" = $parseSwitches; "sites" = $parseSites;}
 }
 function Read-Config {
-    $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
+    $getConfigContent = Get-Content -Path "$appData\config.json" | Out-String | ConvertFrom-Json
     return $getConfigContent    
 }
 
-if ($domainName -inotmatch 'localh' -or $domainName -inotmatch '') {
+function Check-PSversion {
+    if ($PSVersionTable.PSVersion.Major -gt 2) {
+        return $true
+    }
+    return $false
+}
+
+$psVersion = Check-PSversion
+if ($domainName -inotmatch 'localhost' -and $psVersion) {
     Create-AppData
-    Generate-Config @{"switches" = $PsBoundParameters}
+    $fromUrl = Build-Url
+    $listOfSites = Get-ListOfSites $fromUrl
+    Generate-Config @{"switches" = $PsBoundParameters; "sites" = $listOfSites}
+
     Create-ScheduledTask "QuickAccessAlfresco"
     if (!$disableHomeAndShared) {
         Create-HomeAndSharedLinks                
     }
-    $fromUrl = Build-Url
-    $listOfSites = Get-ListOfSites $fromUrl
     Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
+}
+
+function deleteLinks {
+    $shortcuts = @{}
+    $userLinks = 0
+    $removed = 0
+    
+    $shortcuts[0] = Get-ChildItem -Recurse "C:\users\$whoAmI\Links" -Include *.lnk
+
+    $shell = New-Object -ComObject WScript.Shell
+
+    foreach ($shortcut in $shortcuts[0]) {
+        if ($shell.CreateShortcut($shortcut).targetpath -like "\\localhost\Alfresco*") {
+            $removed++
+        	Remove-Item $shortcut
+        }
+        else {
+            $userLinks++
+        }
+    }
+
+    $shortcuts[1] = $userLinks
+    $shortcuts[2] = $removed
+
+    [Runtime.InteropServices.Marshal]::ReleaseComObject($Shell) | Out-Null
+
+    return $shortcuts
 }

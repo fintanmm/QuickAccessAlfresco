@@ -8,9 +8,9 @@ $whoAmI = $env:UserName
 $linkBaseDir = "$env:userprofile\Links"
 $appData = "$env:APPDATA\QuickAccessAlfresco"
 $url = "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/"
-$convertedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
-$convertedCachedJSON = @{0 = @{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";};1 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};2 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};3 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};4 = @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";};}
-$homeAndShared = @{0 = @{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;};1 = @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";};}
+$convertedJSON = @(@{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";})
+$convertedCachedJSON = @(@{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";})
+$homeAndShared = @(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;}, @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
 
 function setUp {
     New-Item -ItemType Directory -Force -Path $appData
@@ -64,7 +64,9 @@ Describe "Create-ScheduledTask" {
 }
 
 Describe 'Build-Url' {
-  It "Should build the URL for connecting to Alfresco." {
+    Mock WhoAm-I {return $whoAmI }
+    
+    It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should Be $url
   }
 
@@ -72,6 +74,15 @@ Describe 'Build-Url' {
     $urlWithParams = Build-Url "hello=world"
     $urlWithParams | Should Be "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/?hello=world"
   }
+}
+
+Describe "WhoAm-I" {
+    It "Should get the case sensitive username." {     
+        Mock SearchAD {return $env:UserName}
+
+        $whoAmI = WhoAm-I
+        $whoAmI | Should be $env:UserName
+    }
 }
 
 Describe 'Set-SecurityProtocols' {
@@ -99,6 +110,8 @@ Describe 'Get-ListOfSites' {
 }
 
 Describe 'Create-HomeAndSharedLinks' {    
+    Mock WhoAm-I {return $whoAmI }
+    
     It "Should not create links for the user home and shared because of the cache." {
         Mock CacheExists {return @(1, 2)}
         $createHomeAndShared = Create-HomeAndSharedLinks 
@@ -118,7 +131,7 @@ Describe 'Create-HomeAndSharedLinks' {
 }
 
 Describe 'Create-Link' {
-    Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
+    Mock Read-Config {return [PSCustomObject]@{"switches" =[PSCustomObject]@{"icon" = "\\some\where\over\the\rainbow\quickaccess_icon.ico";};} }
     It "Should create Quick Access link to Alfresco." {
         $createLink = Create-Link $convertedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"       
@@ -248,12 +261,14 @@ Describe 'Create-Link' {
   
 Describe 'Create-QuickAccessLinks' {
     Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
+    Mock WhoAm-I {return $whoAmI }
+    
     It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
         Mock CacheSizeChanged {return $true}        
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
         $createLinks.Count | Should Be 0
     }
-
+        
     It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
         Mock CacheSizeChanged {return $true}                
         $createLinks = Create-QuickAccessLinks $convertedCachedJSON
@@ -262,7 +277,6 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks.Count | Should Be 2
     }
-
     Clean-Up @("Benchmark", "Recruitment")
 
     It "Should create all Quick Access links to sites within Alfresco" {
@@ -306,11 +320,21 @@ Describe 'Create-QuickAccessLinks' {
         $createLinks = Create-QuickAccessLinks -links $convertedJSON -protocol "sharepoint"
     
         $recruitment = Test-Path "$env:userprofile\Links\Alfresco - Recruitment.lnk"
-        $recruitment | Should Not Be "False"
+        $recruitment | Should Not Be $false
         $createLinks[1].Description | Should Match $convertedJSON[1].description
         $createLinks[1].TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\Recruitment\documentLibrary"
     }
-    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")        
+    Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
+    
+    It "Should use the SharePoint protocol to setup Quick Access links to one site within Alfresco" {
+        Mock CacheTimeChange {return 1}
+        $createLinks = Create-QuickAccessLinks -links @($convertedJSON[0]) -protocol "sharepoint"
+        $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
+        $benchmark | Should Not Be $false
+        $createLinks.Description | Should Match $convertedJSON[0].description
+        $createLinks.TargetPath | Should BeLike "\\localhost:8443@SSL\alfresco\aos\sites\Benchmark\documentLibrary"
+    }
+    Clean-Up @('Alfresco - Benchmark')            
 }
 
 Describe "CopyIcon" {
@@ -331,16 +355,25 @@ Describe "CopyIcon" {
 
 Describe 'CacheCreate' {
     $appData = "TestDrive:\"
+    Mock WhoAm-I {return $whoAmI }    
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
-        $createCache.Count | Should be 2
+        $createCache.Name | Should be "5.cache"
     }
+
+    It "Should return empty cache if it does exists." {
+        Mock Get-ListOfSites {return [PSCustomObject]@{} } 
+        rm "$appData\*.cache"
+        $createCache = CacheCreate
+        $createCache.Name | Should be "0.cache"
+        rm "$appData\*.cache"
+    }  
 
     It "Should return the cache if it does exists." {
         New-Item "$appData\5.cache" -type file -Force
         $createCache = CacheCreate
         $createCache.Name | Should be "5.cache"
-    }
+    }  
 }
 
 Describe 'CacheExists' {  
@@ -372,12 +405,12 @@ Describe 'CacheInit' {
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
     }    
-    
+
     It "Should remove the cache if cache size does change." {
         Mock CacheSizeChanged {return $true}
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
-    }    
+    }        
 }
 
 Describe 'CacheSizeChanged' {
@@ -393,12 +426,14 @@ Describe 'CacheSizeChanged' {
     It "Should detect if the cache is the same size." {
         New-Item "$appData\5.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match $false      
+        $cacheSizeChanged | Should Match $false       
     }
     Clean-Up @('*') ".cache"
 }
 
 Describe "CacheTimeChange" {
+    Mock WhoAm-I {return $whoAmI }
+    
     It "Should detect if the cache has been modified in the last 10 minutes. If so do a web request." {
         $lastWriteTime = @{"LastWriteTime" = [datetime]"1/2/14 00:00:00";}
         $cacheTimeChange = CacheTimeChange $lastWriteTime 5
@@ -424,32 +459,31 @@ Describe "Create-AppData" {
         $doesAppDataExist = Test-Path $appData
         $createAppData | Should be $doesAppDataExist
     }
-    #Remove-Item "$($appData)"
+    # Remove-Item "$($appData)"
 }
 
 Describe "Generate-Config" {
     $appData = "TestDrive:\"
+    $mockParams = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
 
     It "Should generate config file" {
-        $generateConfig = Generate-Config
+        $generateConfig = Generate-Config $mockParams
         $doesConfigFileExist = Test-Path "$appData\config.json"
         $generateConfig | Should be $doesConfigFileExist
     }
 
     It "Should not generate config file" {
-        $generateConfig = Generate-Config
+        $generateConfig = Generate-Config $mockParams
         $generateConfig | Should be $false
     }    
     Clean-Up @('*') ".json"
 
     It "Should convert params to json" {
-        $mockParams = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false}
-        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
         $generateConfig = Generate-Config $mockParams
         $doesConfigFileExist = Test-Path "$appData\config.json"
         $getConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
         $generateConfig | Should be $doesConfigFileExist
-        $getConfigContent | Should BeLike $paramsToJson
+        $getConfigContent | Should Be $getConfigContent
     }
 }
 
@@ -457,11 +491,12 @@ Describe "Read-Config" {
     $appData = "TestDrive:\"
 
     It "Should read the config file" {
-        $mockParams = @{"switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = ""; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
-        $mockParams | ConvertTo-Json | Set-Content "$appData\config.json"
-        $paramsToJson = $mockParams | Convertto-Json | ConvertFrom-Json
+        $mockConfig = [PSCustomObject]@{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+        $mockConfig | ConvertTo-Json -depth 1 | Set-Content -Path "$appData\config.json"
+        $mockConfigContent = Get-Content -Path "$appData\config.json" | ConvertFrom-Json
         $readConfig = Read-Config
-        $readConfig | Should BeLike $paramsToJson        
+        $readConfig.switches | Should Match $mockConfigContent.switches
+        $readConfig.sites | Should Be $mockConfigContent.sites
     }
 }
 
@@ -476,17 +511,34 @@ Describe "Parse-Config" {
         $parseConfig["sites"] | Should Match @()  
     }
 
-    $mockConfig = @{"sites" = $convertedJSON; "switches" = @{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
+    $mockConfig = [PSCustomObject]@{"sites" = [PSCustomObject]$convertedJSON; "switches" = [PSCustomObject]@{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
 
     It "Should parse the switches from the config file" {   
         Mock Read-Config {return $mockConfig} 
         $parseConfig = Parse-Config
-        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -disableHomeAndShared 'False' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - '"
+        $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - ' -icon '' -protocol '' -disableHomeAndShared 'False' "
     }
 
     It "Should parse the sites from the config file" {   
         Mock Read-Config {return $mockConfig} 
         $parseConfig = Parse-Config
-        $parseConfig["sites"] | Should Be @("benchmark", "marketing", "recruitment")
+        #$parseConfig["sites"] | Should Be @("benchmark", "marketing", "recruitment")
+        $parseConfig["sites"] | Should Be @("Benchmark","Recruitment")
     }    
+}
+
+Describe "Check-PSVersion" {
+    It "Should check the PowerShell version is greater or equal than 3."{
+        $psVersion = Check-PSVersion
+        $psVersion | Should be $true
+    }
+}
+
+Describe "deleteLinks" {
+
+    It "Should delete all the links that point to Alfresco" {
+        $numberOfLinks = deleteLinks
+
+        $numberOfLinks[2] | Should be ($numberOfLinks[0].Count-$numberOfLinks[1])
+    }
 }
