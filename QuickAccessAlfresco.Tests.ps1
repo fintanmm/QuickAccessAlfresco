@@ -532,3 +532,12 @@ Describe "Check-PSVersion" {
         $psVersion | Should be $true
     }
 }
+
+Describe "deleteLinks" {
+
+    It "Should delete all the links that point to Alfresco" {
+        $numberOfLinks = deleteLinks
+
+        $numberOfLinks[2] | Should be ($numberOfLinks[0].Count-$numberOfLinks[1])
+    }
+}
