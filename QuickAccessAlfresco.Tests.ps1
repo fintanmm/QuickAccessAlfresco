@@ -17,7 +17,7 @@ function setUp {
 }
 
 function Clean-Up($links, $fileExt = ".lnk") {
-    # Clean up after test
+    #Clean up after test
     $testLink = "$env:userprofile\Links\"
     foreach($link in $links) {
         if ($fileExt -eq ".lnk") {
@@ -33,6 +33,15 @@ function Clean-Up($links, $fileExt = ".lnk") {
                 Write-Host "Can not find $link"
             }            
         }
+    }
+}
+
+Describe "SearchAD" {
+
+    It 'Should return the user account name' {
+
+        $searchAD = SearchAD
+        $searchAD | Should BeLike $whoAmI
     }
 }
 

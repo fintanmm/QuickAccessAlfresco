@@ -296,7 +296,7 @@ function deleteLinks {
     $userLinks = 0
     $removed = 0
     
-    $shortcuts[0] = Get-ChildItem -Recurse "C:\users\$whoAmI\Links" -Include *.lnk
+    $shortcuts[0] = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
 
     $shell = New-Object -ComObject WScript.Shell
 
