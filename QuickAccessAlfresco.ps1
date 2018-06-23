@@ -284,7 +284,7 @@ if ($domainName -inotmatch 'localhost' -and $psVersion) {
     $listOfSites = Get-ListOfSites $fromUrl
     Generate-Config @{"switches" = $PsBoundParameters; "sites" = $listOfSites}
 
-    Create-ScheduledTask "QuickAccessAlfresco"
+    #Create-ScheduledTask "QuickAccessAlfresco"
     if (!$disableHomeAndShared) {
         Create-HomeAndSharedLinks                
     }
