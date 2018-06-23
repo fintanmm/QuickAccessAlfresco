@@ -290,3 +290,30 @@ if ($domainName -inotmatch 'localhost' -and $psVersion) {
     }
     Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
 }
+
+function deleteLinks {
+    $shortcuts = @{}
+    $userLinks = 0
+    $removed = 0
+    
+    $shortcuts[0] = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
+
+    $shell = New-Object -ComObject WScript.Shell
+
+    foreach ($shortcut in $shortcuts[0]) {
+        if ($shell.CreateShortcut($shortcut).targetpath -like "\\localhost\Alfresco*") {
+            $removed++
+        	Remove-Item $shortcut
+        }
+        else {
+            $userLinks++
+        }
+    }
+
+    $shortcuts[1] = $userLinks
+    $shortcuts[2] = $removed
+
+    [Runtime.InteropServices.Marshal]::ReleaseComObject($Shell) | Out-Null
+
+    return $shortcuts
+}
