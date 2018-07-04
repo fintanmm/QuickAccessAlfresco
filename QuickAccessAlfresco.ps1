@@ -285,7 +285,7 @@ function deleteLinks {
     foreach ($shortcut in $shortcuts.Total) {
         if ($shell.CreateShortcut($shortcut).targetpath -like "\\*\Alfresco*") {
             $shortcuts.Removed++
-        	Remove-Item $shortcut
+            Remove-Item $shortcut
         }
         else {
             $shortcuts.User++
