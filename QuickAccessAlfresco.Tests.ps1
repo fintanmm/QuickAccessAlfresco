@@ -534,16 +534,36 @@ Describe "Check-PSVersion" {
 }
 
 Describe "deleteLinks" {
-    It "Should determine if there are no links that point to Alfresco" {
+    It "Should determine the total amount of links that the user has" {
+        $total = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
         $shortcuts = deleteLinks
-        $shortcuts.Total.Count | Should be $shortcuts.User
+        $shortcuts.Total.Count | Should be $total.Count
+    }
+
+    $shell = New-Object -comObject WScript.Shell
+    $shortcut = $shell.CreateShortcut("$linkBaseDir\testMe.lnk")
+    $shortcut.TargetPath = '\\alfresco\alfresco\alfresco'
+    $shortcut.Save()
+    $shortcut = $shell.CreateShortcut("$linkBaseDir\testMeAgain.lnk")
+    $shortcut.TargetPath = '\\Alfresco\Alfresco\Alfresco'
+    $shortcut.Save()
+
+    It "Should determine how many links point to Alfresco" {
+        $shortcuts = deleteLinks
+        $shortcuts.Removed | Should be 2
     }
 
     Mock CacheExists {return @()}
     Create-HomeAndSharedLinks
 
     It "Should delete all the links that point to Alfresco" {
+        $total = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
         $shortcuts = deleteLinks
-        $shortcuts.Removed | Should be ($shortcuts.Total.Count-$shortcuts.User)
+        $shortcuts.Removed | Should be ($total.Count-$shortcuts.User)
+    }
+
+    It "Should determine that there are no links which point to Alfresco" {
+        $shortcuts = deleteLinks
+        $shortcuts.Removed | Should be $null
     }
 }

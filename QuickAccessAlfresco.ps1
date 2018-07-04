@@ -278,12 +278,11 @@ function Check-PSversion {
 
 function deleteLinks {
     $shortcuts = @{}
-
     $shortcuts.Total = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
     $shell = New-Object -ComObject WScript.Shell
 
     foreach ($shortcut in $shortcuts.Total) {
-        if ($shell.CreateShortcut($shortcut).targetpath -like "\\*\Alfresco*") {
+        if ($shell.CreateShortcut($shortcut).targetpath -like "\\*\*lfresco*") {
             $shortcuts.Removed++
             Remove-Item $shortcut
         }
