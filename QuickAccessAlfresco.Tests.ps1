@@ -522,22 +522,28 @@ Describe "Parse-Config" {
     It "Should parse the sites from the config file" {   
         Mock Read-Config {return $mockConfig} 
         $parseConfig = Parse-Config
-        $parseConfig["sites"] | Should Be @("benchmark", "marketing", "recruitment")
+        $parseConfig["sites"] | Should Be @("Benchmark", "Recruitment")
     }    
 }
 
 Describe "Check-PSVersion" {
-    It "Should check the PowerShell version is greater or equal than 3."{
+    It "Should check if PowerShell version is 3 or higher."{
         $psVersion = Check-PSVersion
         $psVersion | Should be $true
     }
 }
 
 Describe "deleteLinks" {
+    It "Should determine if there are no links that point to Alfresco" {
+        $shortcuts = deleteLinks
+        $shortcuts.Total.Count | Should be $shortcuts.User
+    }
+
+    Mock CacheExists {return @()}
+    Create-HomeAndSharedLinks
 
     It "Should delete all the links that point to Alfresco" {
-        $numberOfLinks = deleteLinks
-
-        $numberOfLinks[2] | Should be ($numberOfLinks[0].Count-$numberOfLinks[1])
+        $shortcuts = deleteLinks
+        $shortcuts.Removed | Should be ($shortcuts.Total.Count-$shortcuts.User)
     }
 }

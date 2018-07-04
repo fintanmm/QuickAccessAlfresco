@@ -265,16 +265,36 @@ function Parse-Config {
     }
     return @{"switches" = $parseSwitches; "sites" = $parseSites;}
 }
+
 function Read-Config {
     $getConfigContent = Get-Content -Path "$appData\config.json" | Out-String | ConvertFrom-Json
     return $getConfigContent    
 }
 
 function Check-PSversion {
-    if ($PSVersionTable.PSVersion.Major -gt 2) {
-        return $true
+
+    return $PSVersionTable.PSVersion.Major -gt 2
+}
+
+function deleteLinks {
+    $shortcuts = @{}
+
+    $shortcuts.Total = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
+    $shell = New-Object -ComObject WScript.Shell
+
+    foreach ($shortcut in $shortcuts.Total) {
+        if ($shell.CreateShortcut($shortcut).targetpath -like "\\*\Alfresco*") {
+            $shortcuts.Removed++
+        	Remove-Item $shortcut
+        }
+        else {
+            $shortcuts.User++
+        }
     }
-    return $false
+
+    [Runtime.InteropServices.Marshal]::ReleaseComObject($shell) | Out-Null
+
+    return $shortcuts
 }
 
 $psVersion = Check-PSversion
@@ -289,31 +309,4 @@ if ($domainName -inotmatch 'localhost' -and $psVersion) {
         Create-HomeAndSharedLinks                
     }
     Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
-}
-
-function deleteLinks {
-    $shortcuts = @{}
-    $userLinks = 0
-    $removed = 0
-    
-    $shortcuts[0] = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
-
-    $shell = New-Object -ComObject WScript.Shell
-
-    foreach ($shortcut in $shortcuts[0]) {
-        if ($shell.CreateShortcut($shortcut).targetpath -like "\\localhost\Alfresco*") {
-            $removed++
-        	Remove-Item $shortcut
-        }
-        else {
-            $userLinks++
-        }
-    }
-
-    $shortcuts[1] = $userLinks
-    $shortcuts[2] = $removed
-
-    [Runtime.InteropServices.Marshal]::ReleaseComObject($Shell) | Out-Null
-
-    return $shortcuts
 }
