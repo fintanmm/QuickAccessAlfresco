@@ -176,6 +176,26 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     return $shortcut
 }
 
+function Delete-Links {
+    $shortcuts = @{}
+    $shortcuts.Total = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
+    $shell = New-Object -ComObject WScript.Shell
+
+    foreach ($shortcut in $shortcuts.Total) {
+        if ($shell.CreateShortcut($shortcut).targetpath -like "*\*lfresco\*") {
+            $shortcuts.Removed++
+            Remove-Item $shortcut
+        }
+        else {
+            $shortcuts.User++
+        }
+    }
+
+    [Runtime.InteropServices.Marshal]::ReleaseComObject($shell) | Out-Null
+
+    return $shortcuts
+}
+
 function CacheInit {
     $cacheCreate = CacheCreate
     
@@ -276,29 +296,9 @@ function Check-PSversion {
     return $PSVersionTable.PSVersion.Major -gt 2
 }
 
-function deleteLinks {
-    $shortcuts = @{}
-    $shortcuts.Total = Get-ChildItem -Recurse $linkBaseDir -Include *.lnk
-    $shell = New-Object -ComObject WScript.Shell
-
-    foreach ($shortcut in $shortcuts.Total) {
-        if ($shell.CreateShortcut($shortcut).targetpath -like "\\*\*lfresco*") {
-            $shortcuts.Removed++
-            Remove-Item $shortcut
-        }
-        else {
-            $shortcuts.User++
-        }
-    }
-
-    [Runtime.InteropServices.Marshal]::ReleaseComObject($shell) | Out-Null
-
-    return $shortcuts
-}
-
 $psVersion = Check-PSversion
 if ($domainName -inotmatch 'localhost' -and $psVersion) {
-    deleteLinks
+    Delete-Links
     Create-AppData
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
