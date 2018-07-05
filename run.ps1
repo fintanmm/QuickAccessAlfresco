@@ -7,12 +7,12 @@ Add-Type @"
     {
         public static void Ignore()
         {
-            ServicePointManager.ServerCertificateValidationCallback += 
+            ServicePointManager.ServerCertificateValidationCallback +=
                 delegate
                 (
-                    Object obj, 
-                    X509Certificate certificate, 
-                    X509Chain chain, 
+                    Object obj,
+                    X509Certificate certificate,
+                    X509Chain chain,
                     SslPolicyErrors errors
                 )
                 {
@@ -27,6 +27,7 @@ Add-Type @"
 if (Test-Path ".\0)") {
     Remove-Item -Path .\0
 }
+
 $whoAmI = $env:UserName
 $webDir = "share\proxy\alfresco\api\people\$whoAmI\sites\"
 $webDavDir = "alfresco\webdav\Sites"
@@ -45,6 +46,5 @@ if(!$serverRunning) {
     Start-Process -FilePath "powershell.exe" -ArgumentList "-noexit -executionpolicy bypass", "$pwd\server.ps1" -Verb runas
 }
 
-$whoAmI = $env:UserName
 Invoke-WebRequest "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/sites.json" 2>&1
 Invoke-Pester .\QuickAccessAlfresco.Tests.ps1 -CodeCoverage .\QuickAccessAlfresco.ps1
