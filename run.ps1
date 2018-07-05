@@ -44,6 +44,7 @@ New-Item -Name quickaccess_icon.ico  -Force -ItemType File
 $serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
 if(!$serverRunning) {
     Start-Process -FilePath "powershell.exe" -ArgumentList "-noexit -executionpolicy bypass", "$pwd\server.ps1" -Verb runas
+    Start-Sleep 5
 }
 
 Invoke-WebRequest "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/sites.json" 2>&1
