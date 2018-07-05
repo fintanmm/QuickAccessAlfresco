@@ -32,6 +32,8 @@ $whoAmI = $env:UserName
 $webDir = "share\proxy\alfresco\api\people\$whoAmI\sites\"
 $webDavDir = "alfresco\webdav\Sites"
 $spDir = "alfresco\aos\Sites"
+$processName = "server.ps1"
+$serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
 New-Item -ItemType Directory -Force -Path $webDir 
 New-Item -ItemType Directory -Force -Path $webDavDir
 New-Item -ItemType Directory -Force -Path $spDir

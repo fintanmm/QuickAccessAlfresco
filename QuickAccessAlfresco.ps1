@@ -113,6 +113,7 @@ function CopyIcon($icon="") {
  
 function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
+    $alfresco = "Alfresco - "
     if ($link.Count -eq 0) {
         return $false
     }
@@ -171,7 +172,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     if($link.icon){
         $iconLocation = "$appData\{0}" -f $link.icon.Split('\')[-1]
         $shortcut.IconLocation = $iconLocation
-    }    
+    }
     $shortcut.Save()
     return $shortcut
 }
@@ -241,7 +242,7 @@ function CacheCreate {
         $fromUrl = Build-Url
         $sites = Get-ListOfSites $fromUrl
         $count = $(If ($sites.Count) {$sites.Count} Else {0}) 
-        New-Item "$appData\$($count).cache" -type file -Force | Out-Null          
+        New-Item "$appData\$($count).cache" -type file -Force | Out-Null
         $cacheExists = CacheExists
     }
     return $cacheExists
@@ -254,7 +255,6 @@ function CacheExists {
     }
     return $cacheFile
 }
-
 function Create-AppData {
     New-Item -ItemType Directory -Force -Path $appData
 }

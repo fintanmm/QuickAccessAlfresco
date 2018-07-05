@@ -17,7 +17,7 @@ function setUp {
 }
 
 function Clean-Up($links, $fileExt = ".lnk") {
-    # Clean up after test
+    #Clean up after test
     $testLink = "$env:userprofile\Links\"
     foreach($link in $links) {
         if ($fileExt -eq ".lnk") {
@@ -45,6 +45,14 @@ function Create-TestLinks {
     $shortcut = $shell.CreateShortcut("$linkBaseDir\testMeAgain.lnk")
     $shortcut.TargetPath = '\\Alfresco\Alfresco\Alfresco'
     $shortcut.Save()
+}
+Describe "SearchAD" {
+
+    It 'Should return the user account name' {
+
+        $searchAD = SearchAD
+        $searchAD | Should BeLike $whoAmI
+    }
 }
 
 Describe 'domainNameParameter' {
@@ -458,7 +466,7 @@ Describe 'CacheSizeChanged' {
         Mock CacheTimeChange {return 5}
         New-Item "$appData\4.cache" -type file -Force
         $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match "True"       
+        $cacheSizeChanged | Should Match $true       
     }
     Clean-Up @('*') ".cache"
 
@@ -561,7 +569,8 @@ Describe "Parse-Config" {
     It "Should parse the sites from the config file" {   
         Mock Read-Config {return $mockConfig} 
         $parseConfig = Parse-Config
-        $parseConfig["sites"] | Should Be @("Benchmark", "Recruitment")
+        #$parseConfig["sites"] | Should Be @("benchmark", "marketing", "recruitment")
+        $parseConfig["sites"] | Should Be @("Benchmark","Recruitment")
     }    
 }
 
@@ -569,5 +578,14 @@ Describe "Check-PSVersion" {
     It "Should check if PowerShell version is 3 or higher."{
         $psVersion = Check-PSVersion
         $psVersion | Should be $true
+    }
+}
+
+Describe "deleteLinks" {
+
+    It "Should delete all the links that point to Alfresco" {
+        $numberOfLinks = deleteLinks
+
+        $numberOfLinks[2] | Should be ($numberOfLinks[0].Count-$numberOfLinks[1])
     }
 }
