@@ -298,6 +298,7 @@ function deleteLinks {
 
 $psVersion = Check-PSversion
 if ($domainName -inotmatch 'localhost' -and $psVersion) {
+    deleteLinks
     Create-AppData
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
