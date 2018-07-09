@@ -24,6 +24,10 @@ TaskTearDown {
 
 Task default -depends InvokePester
 
+Task -Name RunWebServer -Description "Run web server"{
+    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "$pwd\server.ps1" -Verb runas    
+}
+
 Task InvokePester -depends GetSiteJson{
     "Invoke Pester with Coverage"
     Invoke-Pester .\QuickAccessAlfresco.Tests.ps1 -CodeCoverage .\QuickAccessAlfresco.ps1
