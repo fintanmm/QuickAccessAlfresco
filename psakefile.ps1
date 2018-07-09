@@ -20,12 +20,13 @@ TaskTearDown {
     # Remove-Item -Path "$webDavDir"
     # Remove-Item -Path "$spDir"
     # Remove-Item -Path "$webDir"
+    # Get-Process | Where-Object { $_.Name -eq "server.ps1" } | Select-Object -First 1 | Stop-Process
 }
 
 Task default -depends InvokePester
 
 Task -Name RunWebServer -Description "Run web server"{
-    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "$pwd\server.ps1" -Verb runas    
+    Start-Process -InformationVariable -FilePath "powershell.exe" -ArgumentList "-NoExit", "$pwd\server.ps1" -Verb runas    
 }
 
 Task InvokePester -depends GetSiteJson{
@@ -49,4 +50,9 @@ Task -Name Formatter -Description "Format code" {
 
 Task -Name ConCatFiles -Depends InvokePester -Description "Concatenates files into one file"{
     # cat params.ps1,user.ps1,links.ps1,task.ps1,icon.ps1,config.ps1,main.ps1 | sc .\QuickAccessAlfresco.ps1
+}
+
+Task -Name Watch -Description "Watch directory for changes" {
+    $FileSystemWatcher = New-Object System.IO.FileSystemWatcher
+    $FileSystemWatcher | Get-Member -Type Properties,Event 
 }
