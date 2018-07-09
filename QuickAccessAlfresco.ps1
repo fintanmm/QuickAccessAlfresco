@@ -292,7 +292,6 @@ function Read-Config {
 }
 
 function Check-PSversion {
-
     return $PSVersionTable.PSVersion.Major -gt 2
 }
 

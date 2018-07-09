@@ -89,7 +89,7 @@ Describe 'Build-Url' {
 
 Describe "WhoAm-I" {
     It "Should get the case sensitive username." {     
-        #Mock SearchAD {return $env:UserName}
+        Mock SearchAD {return $env:UserName}
 
         $whoAmI = WhoAm-I
         $whoAmI | Should be $env:UserName
