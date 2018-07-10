@@ -1,3 +1,8 @@
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+. "$here\fixtures.ps1"
+. "$here\..\src\config.ps1"
+. "$here\..\src\$sut"
 
 Describe 'Build-Url' {
     Mock WhoAm-I {return $whoAmI }
