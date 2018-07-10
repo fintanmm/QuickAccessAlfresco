@@ -18,11 +18,6 @@ function SearchAD {
     return $whoAmI.Properties.samaccountname
 }
 
-function Set-SecurityProtocols ($protocols="Tls,Tls11,Tls12") {
-    $AllProtocols = [System.Net.SecurityProtocolType]$protocols
-    [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
-}
-
 function Get-ListOfSites {
     Param([String] $url)
     Set-SecurityProtocols
@@ -35,4 +30,9 @@ function Get-ListOfSites {
         [array]$response = @()
     }
     return $response
+}
+
+function Set-SecurityProtocols ($protocols="Tls,Tls11,Tls12") {
+    $AllProtocols = [System.Net.SecurityProtocolType]$protocols
+    [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
 }
