@@ -4,6 +4,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\..\src\user.ps1"
 . "$here\..\src\config.ps1"
 . "$here\..\src\cache.ps1"
+$mapDomain = "localhost"
 . "$here\..\src\$sut"
 
 Describe 'Create-HomeAndSharedLinks' {    
