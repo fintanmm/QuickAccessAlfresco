@@ -23,13 +23,13 @@ TaskTearDown {
     # Get-Process | Where-Object { $_.Name -eq "server.ps1" } | Select-Object -First 1 | Stop-Process
 }
 
-Task default -depends InvokePester
+Task default -depends Test
 
 Task -Name RunWebServer -Description "Run web server"{
     Start-Process -InformationVariable -FilePath "powershell.exe" -ArgumentList "-NoExit", "$pwd\server.ps1" -Verb runas    
 }
 
-Task InvokePester -depends GetSiteJson{
+Task Test -depends GetSiteJson{
     "Invoke Pester with Coverage"
     Invoke-Pester .\QuickAccessAlfresco.Tests.ps1 -CodeCoverage .\QuickAccessAlfresco.ps1
 }
@@ -44,11 +44,11 @@ Task Lint {
     Invoke-ScriptAnalyzer -Path .\QuickAccessAlfresco.ps1 -Setting .\ScriptAnalyzerSettings.psd1
 }
 
-Task -Name Formatter -Description "Format code" {
+Task -Name Format -Description "Format code" {
     Invoke-Formatter .\QuickAccessAlfresco.ps1 -Settings .\ScriptAnalyzerSettings.psd1
 }
 
-Task -Name ConCatFiles -Depends InvokePester -Description "Concatenates files into one file"{
+Task -Name ConCat -Depends InvokePester -Description "Concatenates files into one file"{
     # cat params.ps1,user.ps1,links.ps1,task.ps1,icon.ps1,config.ps1,main.ps1 | sc .\QuickAccessAlfresco.ps1
 }
 
