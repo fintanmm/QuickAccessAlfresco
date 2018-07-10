@@ -31,7 +31,11 @@ Task -Name RunWebServer -Description "Run web server"{
 
 Task Test -depends GetSiteJson{
     "Invoke Pester with Coverage"
-    Invoke-Pester .\QuickAccessAlfresco.Tests.ps1 -CodeCoverage .\QuickAccessAlfresco.ps1
+    
+    $testResult = Invoke-Pester .\test\*.Tests.ps1 -PassThru -CodeCoverage .\src\*.ps1
+    if ($testResult.FailedCount -gt 0) {
+        throw "$($testResult.FailedCount) tests failed"
+    }
 }
 
 Task GetSiteJson {
@@ -41,15 +45,15 @@ Task GetSiteJson {
 
 Task Lint {
     "Linting"
-    Invoke-ScriptAnalyzer -Path .\QuickAccessAlfresco.ps1 -Setting .\ScriptAnalyzerSettings.psd1
+    Invoke-ScriptAnalyzer -Path .\src\*.ps1 -Setting .\ScriptAnalyzerSettings.psd1
 }
 
 Task -Name Format -Description "Format code" {
-    Invoke-Formatter .\QuickAccessAlfresco.ps1 -Settings .\ScriptAnalyzerSettings.psd1
+    Invoke-Formatter .\src\*.ps1 -Settings .\ScriptAnalyzerSettings.psd1
 }
 
-Task -Name ConCat -Depends InvokePester -Description "Concatenates files into one file"{
-    # cat params.ps1,user.ps1,links.ps1,task.ps1,icon.ps1,config.ps1,main.ps1 | sc .\QuickAccessAlfresco.ps1
+Task -Name ConCat -Description "Concatenates files into one file"{
+    cat src/params.ps1,src/user.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/cache.ps1,src/config.ps1,src/main.ps1 | sc target\QuickAccessAlfresco.ps1
 }
 
 Task -Name Watch -Description "Watch directory for changes" {
