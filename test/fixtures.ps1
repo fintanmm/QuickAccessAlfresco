@@ -6,6 +6,7 @@ $convertedJSON = @(@{"title" = "Benchmark"; "description" = "This site is for be
 $convertedCachedJSON = @(@{"title" = "Benchmark"; "description" = "This site is for bench marking Alfresco"; "shortName" = "benchmark";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";}, @{"title" = "Recruitment"; "description" = "Recruitment site"; "shortName" = "Recruitment";})
 $homeAndShared = @(@{"title" = "Home"; "description" = "My Files"; "shortName" = $env:UserName;}, @{"title" = "Shared"; "description" = "Shared Files"; "shortName" = "Shared";})
 
+$domainName = "localhost:8443"
 function setUp {
     New-Item -ItemType Directory -Force -Path $appData
 }
