@@ -27,5 +27,5 @@ function Parse-Config {
 
 function Read-Config {
     $getConfigContent = Get-Content -Path "$appData\config.json" | Out-String | ConvertFrom-Json
-    return $getConfigContent    
+    return $getConfigContent
 }

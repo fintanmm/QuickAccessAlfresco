@@ -26,7 +26,7 @@ function Clean-Up($links, $fileExt = ".lnk") {
                 Remove-Item "$($appData)\$($link)$($fileExt)"
             } else {
                 Write-Host "Can not find $link"
-            }            
+            }
         }
     }
 }

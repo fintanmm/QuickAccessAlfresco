@@ -1,3 +1,29 @@
+Add-Type @"
+    using System;
+    using System.Net;
+    using System.Net.Security;
+    using System.Security.Cryptography.X509Certificates;
+    public class ServerCertificateValidationCallback
+    {
+        public static void Ignore()
+        {
+            ServicePointManager.ServerCertificateValidationCallback +=
+                delegate
+                (
+                    Object obj,
+                    X509Certificate certificate,
+                    X509Chain chain,
+                    SslPolicyErrors errors
+                )
+                {
+                    return true;
+                };
+        }
+    }
+"@
+
+[ServerCertificateValidationCallback]::Ignore();
+
 $whoAmI = $env:UserName
 $webDir = "share\proxy\alfresco\api\people\$whoAmI\sites\"
 $webDavDir = "alfresco\webdav\Sites"
@@ -12,9 +38,9 @@ TaskSetup {
     Copy-Item "stub\sites.json" "$spDir\index.json"
     Copy-Item "stub\sites.json" "$webDir\index.json"
     Copy-Item "stub\sites.json" "$webDir\sites.json"
-    New-Item -Name quickaccess_icon.ico -Force -ItemType File    
+    New-Item -Name quickaccess_icon.ico -Force -ItemType File
 }
-  
+
 TaskTearDown {
     "Executing task tear down"
     # Remove-Item -Path "$webDavDir"
@@ -26,12 +52,11 @@ TaskTearDown {
 Task default -depends Test
 
 Task -Name RunWebServer -Description "Run web server"{
-    Start-Process -InformationVariable -FilePath "powershell.exe" -ArgumentList "-NoExit", "$pwd\server.ps1" -Verb runas    
+    Start-Process -InformationVariable -FilePath "powershell.exe" -ArgumentList "-NoExit", "$pwd\server.ps1" -Verb runas
 }
 
-Task Test -depends GetSiteJson{
+Task Test -depends GetSiteJson {
     "Invoke Pester with Coverage"
-    
     $testResult = Invoke-Pester .\test\*.Tests.ps1 -PassThru -CodeCoverage .\src\*.ps1
     if ($testResult.FailedCount -gt 0) {
         throw "$($testResult.FailedCount) tests failed"
@@ -40,7 +65,7 @@ Task Test -depends GetSiteJson{
 
 Task GetSiteJson {
     "GetSiteJson executed"
-    Invoke-WebRequest "https://localhost:8443/share/proxy/alfresco/api/people/$whoAmI/sites/sites.json"    
+    Invoke-WebRequest "https://127.0.0.1:8443/share/proxy/alfresco/api/people/$whoAmI/sites/sites.json"
 }
 
 Task Lint {
@@ -53,10 +78,11 @@ Task -Name Format -Description "Format code" {
 }
 
 Task -Name ConCat -Description "Concatenates files into one file"{
-    cat src/params.ps1,src/user.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/cache.ps1,src/config.ps1,src/main.ps1 | sc target\QuickAccessAlfresco.ps1
+    New-Item -Path .\target -ItemType Directory -Force
+    Get-Content src/params.ps1,src/user.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/cache.ps1,src/config.ps1,src/main.ps1 | Set-Content target\QuickAccessAlfresco.ps1
 }
 
 Task -Name Watch -Description "Watch directory for changes" {
     $FileSystemWatcher = New-Object System.IO.FileSystemWatcher
-    $FileSystemWatcher | Get-Member -Type Properties,Event 
+    $FileSystemWatcher | Get-Member -Type Properties,Event
 }

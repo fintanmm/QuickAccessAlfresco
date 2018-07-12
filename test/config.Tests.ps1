@@ -16,7 +16,7 @@ Describe "Generate-Config" {
     It "Should not generate config file" {
         $generateConfig = Generate-Config $mockParams
         $generateConfig | Should be $false
-    }    
+    }
     Clean-Up @('*') ".json"
 
     It "Should convert params to json" {
@@ -43,26 +43,26 @@ Describe "Read-Config" {
 
 Describe "Parse-Config" {
     $appData = "TestDrive:\"
-    
-    It "Should parse the config file, even when empty" {   
+
+    It "Should parse the config file, even when empty" {
         $mockConfig = @{"sites" = @(); "switches" = @{};}
-        Mock Read-Config {return $mockConfig} 
+        Mock Read-Config {return $mockConfig}
         $parseConfig = Parse-Config
-        $parseConfig["switches"] | Should Match ""  
-        $parseConfig["sites"] | Should Match @()  
+        $parseConfig["switches"] | Should Match ""
+        $parseConfig["sites"] | Should Match @()
     }
 
     $mockConfig = [PSCustomObject]@{"sites" = [PSCustomObject]$convertedJSON; "switches" = [PSCustomObject]@{"domainName" = 'localhost:8443'; "mapDomain" = "localhost"; "prependToLinkTitle" = "Alfresco Sites - "; "icon" = ""; "protocol" = ""; "disableHomeAndShared" = $false};}
 
-    It "Should parse the switches from the config file" {   
-        Mock Read-Config {return $mockConfig} 
+    It "Should parse the switches from the config file" {
+        Mock Read-Config {return $mockConfig}
         $parseConfig = Parse-Config
         $parseConfig["switches"] | Should Match "-domainName 'localhost:8443' -mapDomain 'localhost' -prependToLinkTitle 'Alfresco Sites - ' -icon '' -protocol '' -disableHomeAndShared 'False' "
     }
 
-    It "Should parse the sites from the config file" {   
-        Mock Read-Config {return $mockConfig} 
+    It "Should parse the sites from the config file" {
+        Mock Read-Config {return $mockConfig}
         $parseConfig = Parse-Config
         $parseConfig["sites"] | Should Be @("Benchmark", "Recruitment")
-    }    
+    }
 }

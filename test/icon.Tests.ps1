@@ -5,7 +5,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 Describe "CopyIcon" {
 
-    $appData = "TestDrive:\"    
+    $appData = "TestDrive:\"
     It "Should copy the icon to the user appData folder." {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
@@ -16,5 +16,5 @@ Describe "CopyIcon" {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
         $copyIcon | Should be $false
-    }    
+    }
 }

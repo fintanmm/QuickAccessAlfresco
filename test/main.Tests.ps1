@@ -9,5 +9,3 @@ Describe "Check-PSVersion" {
         $psVersion | Should be $true
     }
 }
-
-

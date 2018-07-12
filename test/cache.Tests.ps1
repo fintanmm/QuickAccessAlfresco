@@ -7,28 +7,28 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 Describe 'CacheCreate' {
     $appData = "TestDrive:\"
-    Mock WhoAm-I {return $whoAmI }    
+    Mock WhoAm-I {return $whoAmI }
     It "Should create cache if it doesn't exists." {
         $createCache = CacheCreate
         $createCache.Name | Should be "5.cache"
     }
 
     It "Should return empty cache if it does exists." {
-        Mock Get-ListOfSites {return [PSCustomObject]@{} } 
+        Mock Get-ListOfSites {return [PSCustomObject]@{} }
         rm "$appData\*.cache"
         $createCache = CacheCreate
         $createCache.Name | Should be "0.cache"
         rm "$appData\*.cache"
-    }  
+    }
 
     It "Should return the cache if it does exists." {
         New-Item "$appData\5.cache" -type file -Force
         $createCache = CacheCreate
         $createCache.Name | Should be "5.cache"
-    }  
+    }
 }
 
-Describe 'CacheExists' {  
+Describe 'CacheExists' {
     $appData = "TestDrive:\"
     It "Should test that the cache doesn't exists." {
         $cacheExists = CacheExists
@@ -56,13 +56,13 @@ Describe 'CacheInit' {
         Mock CacheSizeChanged {return $false}
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
-    }    
+    }
 
     It "Should remove the cache if cache size does change." {
         Mock CacheSizeChanged {return $true}
         $CacheInit = CacheInit
         $CacheInit.Name | Should Match "5.cache"
-    }        
+    }
 }
 
 Describe 'CacheSizeChanged' {
@@ -71,21 +71,21 @@ Describe 'CacheSizeChanged' {
         Mock CacheTimeChange {return 5}
         New-Item "$appData\4.cache" -type file -Force
         $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match "True"       
+        $cacheSizeChanged | Should Match "True"
     }
     Clean-Up @('*') ".cache"
 
     It "Should detect if the cache is the same size." {
         New-Item "$appData\5.cache" -type file
         $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match $false       
+        $cacheSizeChanged | Should Match $false
     }
     Clean-Up @('*') ".cache"
 }
 
 Describe "CacheTimeChange" {
     Mock WhoAm-I {return $whoAmI }
-    
+
     It "Should detect if the cache has been modified in the last 10 minutes. If so do a web request." {
         $lastWriteTime = @{"LastWriteTime" = [datetime]"1/2/14 00:00:00";}
         $cacheTimeChange = CacheTimeChange $lastWriteTime 5
@@ -96,10 +96,10 @@ Describe "CacheTimeChange" {
         $lastWriteTime = @{"LastWriteTime" = get-date;}
         $cacheTimeChange = CacheTimeChange $lastWriteTime
         $cacheTimeChange | Should Be 0
-    }    
+    }
 
     It "Should detect if no date is passed to the function. If so do not do a web request." {
         $cacheTimeChange = CacheTimeChange @{}
         $cacheTimeChange | Should Be 0
-    }    
+    }
 }

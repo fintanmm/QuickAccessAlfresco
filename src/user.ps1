@@ -1,7 +1,7 @@
 function Build-Url([String] $urlParams="") {
     $whoAmI = WhoAm-I
     $url = "https://$domainName/share/proxy/alfresco/api/people/$whoAmI/sites/"
-    
+
     if ($urlParams) {
         $url = "$($url)?$($urlParams)"
     }

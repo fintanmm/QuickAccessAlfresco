@@ -6,7 +6,7 @@ $domainName = "localhost:8443"
 
 Describe 'Build-Url' {
     Mock WhoAm-I {return $whoAmI }
-    
+
     It "Should build the URL for connecting to Alfresco." {
     Build-Url | Should Be $url
   }
@@ -18,7 +18,7 @@ Describe 'Build-Url' {
 }
 
 Describe "WhoAm-I" {
-    It "Should get the case sensitive username." {     
+    It "Should get the case sensitive username." {
         Mock SearchAD {return $env:UserName}
 
         $whoAmI = WhoAm-I
@@ -47,5 +47,5 @@ Describe 'Get-ListOfSites' {
         $anEmptyList = @()
         $sites = Get-ListOfSites -url "https://localhost:8444/share/proxy/alfresco/api/people/$whoAmI/sites/filenotfound.json"
         $sites.Length | Should Be $anEmptyList.Length
-    }    
+    }
 }

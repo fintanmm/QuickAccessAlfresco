@@ -1,10 +1,10 @@
 function CacheInit {
     $cacheCreate = CacheCreate
-    
+
     if (CacheSizeChanged -eq $true) {
         Remove-Item "$appData\*.cache"
-        $cacheCreate = CacheCreate 
-    }        
+        $cacheCreate = CacheCreate
+    }
     return $cacheCreate
 }
 
@@ -16,7 +16,6 @@ function CacheSizeChanged {
     }
     $countliveSites = CacheTimeChange $cacheExists $howManySitesCached
     $cacheSizeChanged = ($countliveSites -ne $howManySitesCached)
-    
     return $cacheSizeChanged
 }
 
@@ -42,8 +41,8 @@ function CacheCreate {
     if ($cacheExists.Count -eq 0) {
         $fromUrl = Build-Url
         $sites = Get-ListOfSites $fromUrl
-        $count = $(If ($sites.Count) {$sites.Count} Else {0}) 
-        New-Item "$appData\$($count).cache" -type file -Force | Out-Null          
+        $count = $(If ($sites.Count) {$sites.Count} Else {0})
+        New-Item "$appData\$($count).cache" -type file -Force | Out-Null
         $cacheExists = CacheExists
     }
     return $cacheExists
