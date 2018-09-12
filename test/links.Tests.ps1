@@ -3,21 +3,13 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\fixtures.ps1"
 . "$here\..\src\user.ps1"
 . "$here\..\src\config.ps1"
-. "$here\..\src\cache.ps1"
 $mapDomain = "localhost"
 . "$here\..\src\$sut"
 
 Describe 'Create-HomeAndSharedLinks' {
     Mock WhoAm-I {return $whoAmI }
 
-    It "Should not create links for the user home and shared because of the cache." {
-        Mock CacheExists {return @(1, 2)}
-        $createHomeAndShared = Create-HomeAndSharedLinks 
-        $createHomeAndShared.Count | Should be 0
-    }
-
     It "Should create links for the user home and shared." {
-        Mock CacheExists {return @()}
         $createHomeAndShared = Create-HomeAndSharedLinks
         $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
         $createHomeAndShared[0].TargetPath | Should Be "\\localhost\Alfresco\User Homes\$whoAmI"
@@ -161,24 +153,7 @@ Describe 'Create-QuickAccessLinks' {
     Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     Mock WhoAm-I {return $whoAmI }
 
-    It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
-        Mock CacheSizeChanged {return $true}
-        $createLinks = Create-QuickAccessLinks $convertedCachedJSON
-        $createLinks.Count | Should Be 0
-    }
-
-    It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
-        Mock CacheSizeChanged {return $true}
-        $createLinks = Create-QuickAccessLinks $convertedCachedJSON
-        $createLinks.Count | Should Be 0
-        Mock CacheSizeChanged {return $false}
-        $createLinks = Create-QuickAccessLinks $convertedJSON
-        $createLinks.Count | Should Be 2
-    }
-    Clean-Up @("Benchmark", "Recruitment")
-
     It "Should create all Quick Access links to sites within Alfresco" {
-        Mock cacheSizeChanged {return $false}
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks[0].Description | Should Match $convertedJSON[0].description
         $createLinks[1].Description | Should Match $convertedJSON[1].description
@@ -186,7 +161,6 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @("Benchmark", "Recruitment")
 
     It "Should pepend text to all Quick Access links to sites within Alfresco" {
-        Mock CacheTimeChange {return 5}
         $createLinks = Create-QuickAccessLinks $convertedJSON "Alfresco - "
 
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
@@ -225,7 +199,6 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 
     It "Should use the SharePoint protocol to setup Quick Access links to one site within Alfresco" {
-        Mock CacheTimeChange {return 1}
         $createLinks = Create-QuickAccessLinks -links @($convertedJSON[0]) -protocol "sharepoint"
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $benchmark | Should Not Be $false

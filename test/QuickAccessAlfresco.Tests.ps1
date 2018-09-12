@@ -121,14 +121,7 @@ Describe 'Get-ListOfSites' {
 Describe 'Create-HomeAndSharedLinks' {
     Mock WhoAm-I {return $whoAmI }
 
-    It "Should not create links for the user home and shared because of the cache." {
-        Mock CacheExists {return @(1, 2)}
-        $createHomeAndShared = Create-HomeAndSharedLinks 
-        $createHomeAndShared.Count | Should be 0
-    }
-
     It "Should create links for the user home and shared." {
-        Mock CacheExists {return @()}
         $createHomeAndShared = Create-HomeAndSharedLinks
         $createHomeAndShared[0].Description | Should Match $homeAndShared[0].description
         $createHomeAndShared[0].TargetPath | Should Be "\\localhost\Alfresco\User Homes\$whoAmI"
@@ -272,24 +265,7 @@ Describe 'Create-QuickAccessLinks' {
     Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     Mock WhoAm-I {return $whoAmI }
 
-    It "Should not create any Quick Access links to sites within Alfresco because of the cache." {
-        Mock CacheSizeChanged {return $true}
-        $createLinks = Create-QuickAccessLinks $convertedCachedJSON
-        $createLinks.Count | Should Be 0
-    }
-
-    It "Should create all Quick Access links to sites within Alfresco because of the change in cache size." {
-        Mock CacheSizeChanged {return $true}
-        $createLinks = Create-QuickAccessLinks $convertedCachedJSON
-        $createLinks.Count | Should Be 0
-        Mock CacheSizeChanged {return $false}
-        $createLinks = Create-QuickAccessLinks $convertedJSON
-        $createLinks.Count | Should Be 2
-    }
-    Clean-Up @("Benchmark", "Recruitment")
-
     It "Should create all Quick Access links to sites within Alfresco" {
-        Mock cacheSizeChanged {return $false}
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks[0].Description | Should Match $convertedJSON[0].description
         $createLinks[1].Description | Should Match $convertedJSON[1].description
@@ -297,7 +273,6 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @("Benchmark", "Recruitment")
 
     It "Should pepend text to all Quick Access links to sites within Alfresco" {
-        Mock CacheTimeChange {return 5}
         $createLinks = Create-QuickAccessLinks $convertedJSON "Alfresco - "
 
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
@@ -336,7 +311,6 @@ Describe 'Create-QuickAccessLinks' {
     Clean-Up @('Alfresco - Benchmark', "Alfresco - Recruitment")
 
     It "Should use the SharePoint protocol to setup Quick Access links to one site within Alfresco" {
-        Mock CacheTimeChange {return 1}
         $createLinks = Create-QuickAccessLinks -links @($convertedJSON[0]) -protocol "sharepoint"
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
         $benchmark | Should Not Be $false
@@ -387,105 +361,6 @@ Describe "CopyIcon" {
         $doesIconExist = Test-Path "$appData\quickaccess_icon.ico"
         $copyIcon = CopyIcon ".\quickaccess_icon.ico"
         $copyIcon | Should be $false
-    }
-}
-
-Describe 'CacheCreate' {
-    $appData = "TestDrive:\"
-    Mock WhoAm-I {return $whoAmI }
-    It "Should create cache if it doesn't exists." {
-        $createCache = CacheCreate
-        $createCache.Name | Should be "5.cache"
-    }
-
-    It "Should return empty cache if it does exists." {
-        Mock Get-ListOfSites {return [PSCustomObject]@{} }
-        rm "$appData\*.cache"
-        $createCache = CacheCreate
-        $createCache.Name | Should be "0.cache"
-        rm "$appData\*.cache"
-    }
-
-    It "Should return the cache if it does exists." {
-        New-Item "$appData\5.cache" -type file -Force
-        $createCache = CacheCreate
-        $createCache.Name | Should be "5.cache"
-    }
-}
-
-Describe 'CacheExists' {
-    $appData = "TestDrive:\"
-    It "Should test that the cache doesn't exists." {
-        $cacheExists = CacheExists
-        $cacheExists.Count | Should be 0
-    }
-
-    It "Should test that the cache does exists." {
-        New-Item "$appData\5.cache" -type file
-        $cacheExists = CacheExists
-        $cacheExists.Name | Should be "5.cache"
-    }
-}
-
-Describe 'CacheInit' {
-    $cacheFile = @{'Name' = '5.cache';}
-    Mock CacheCreate {return $cacheFile}
-
-    It "Should create cache if cache doesn't exist." {
-        Mock CacheSizeChanged {return $false}
-        $CacheInit = CacheInit
-        $CacheInit.Name | Should Match "5.cache"
-    }
-
-    It "Should not remove the cache if cache size doesn't change." {
-        Mock CacheSizeChanged {return $false}
-        $CacheInit = CacheInit
-        $CacheInit.Name | Should Match "5.cache"
-    }
-
-    It "Should remove the cache if cache size does change." {
-        Mock CacheSizeChanged {return $true}
-        $CacheInit = CacheInit
-        $CacheInit.Name | Should Match "5.cache"
-    }
-}
-
-Describe 'CacheSizeChanged' {
-    $appData = "TestDrive:\"
-    It "Should detect if there is a change in the size of the cache." {
-        Mock CacheTimeChange {return 5}
-        New-Item "$appData\4.cache" -type file -Force
-        $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match "True"
-    }
-    Clean-Up @('*') ".cache"
-
-    It "Should detect if the cache is the same size." {
-        New-Item "$appData\5.cache" -type file
-        $cacheSizeChanged = CacheSizeChanged
-        $cacheSizeChanged | Should Match $false
-    }
-    Clean-Up @('*') ".cache"
-}
-
-Describe "CacheTimeChange" {
-    Mock WhoAm-I {return $whoAmI }
-
-    It "Should detect if the cache has been modified in the last 10 minutes. If so do a web request." {
-        $lastWriteTime = @{"LastWriteTime" = [datetime]"1/2/14 00:00:00";}
-        $cacheTimeChange = CacheTimeChange $lastWriteTime 5
-        $cacheTimeChange | Should Be 5
-    }
-
-    It "Should detect if the cache has not been modified in the last 10 minutes. If so do not do a web request." {
-        $lastWriteTime = @{"LastWriteTime" = get-date;}
-        $cacheTimeChange = CacheTimeChange $lastWriteTime
-        $cacheTimeChange | Should Be 0
-    }
-
-    It "Should detect if no date is passed to the function. If so do not do a web request." {
-        $cacheTimeChange = CacheTimeChange @{}
-        $cacheTimeChange | Should Be 0
     }
 }
 
