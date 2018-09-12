@@ -52,12 +52,12 @@ TaskTearDown {
 Task default -depends Test
 
 Task -Name RunWebServer -Description "Run web server"{
-    # Cannot query running processes for a different user, server must be launched as admin to work hence the credentials request
-    #$serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
-    #if(!$serverRunning) {
-        Start-Process -FilePath "powershell.exe" -ArgumentList "-noexit -executionpolicy bypass", "$pwd\server.ps1" -Credential (Get-Credential)
-        Start-Sleep 4
-    #}
+    "Starting Web Server"
+    $serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
+    if(!$serverRunning) {
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-noexit -executionpolicy bypass", "$pwd\server.ps1" -Verb runas
+        Start-Sleep 2
+    }
 }
 
 Task Test -depends GetSiteJson {
@@ -68,7 +68,7 @@ Task Test -depends GetSiteJson {
     }
 }
 
-Task GetSiteJson {
+Task GetSiteJson -depends RunWebServer {
     "GetSiteJson executed"
     Invoke-WebRequest "https://127.0.0.1:8443/share/proxy/alfresco/api/people/$whoAmI/sites/sites.json"
 }
