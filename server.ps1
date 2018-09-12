@@ -28,7 +28,7 @@ if(!$HttpListener.IsListening){
       $HttpResponse.StatusCode = 200
       $PathToFile = Join-Path $Pwd ($HttpRequest).RawUrl
       Write-Host "$PathToFile"
-      $content = (GC ($PathToFile))    
+      $content = (Get-Content ($PathToFile))
       $ResponseBuffer = [Text.Encoding]::UTF8.GetBytes(($content)) 
       $HttpResponse.ContentLength64 = $ResponseBuffer.Length
       $HttpResponse.OutputStream.Write($ResponseBuffer,0,$ResponseBuffer.Length)
