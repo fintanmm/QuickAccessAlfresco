@@ -31,7 +31,7 @@ $spDir = "alfresco\aos\Sites"
 
 TaskSetup {
     "Executing task setup"
-    New-Item -ItemType Directory -Force -Path $webDir 
+    New-Item -ItemType Directory -Force -Path $webDir
     New-Item -ItemType Directory -Force -Path $webDavDir
     New-Item -ItemType Directory -Force -Path $spDir
     Copy-Item "stub\sites.json" "$webDavDir\index.json"
@@ -52,7 +52,12 @@ TaskTearDown {
 Task default -depends Test
 
 Task -Name RunWebServer -Description "Run web server"{
-    Start-Process -InformationVariable -FilePath "powershell.exe" -ArgumentList "-NoExit", "$pwd\server.ps1" -Verb runas
+    # Cannot query running processes for a different user, server must be launched as admin to work hence the credentials request
+    #$serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
+    #if(!$serverRunning) {
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-noexit -executionpolicy bypass", "$pwd\server.ps1" -Credential (Get-Credential)
+        Start-Sleep 4
+    #}
 }
 
 Task Test -depends GetSiteJson {
@@ -82,7 +87,17 @@ Task -Name ConCat -Description "Concatenates files into one file"{
     Get-Content src/params.ps1,src/user.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/cache.ps1,src/config.ps1,src/main.ps1 | Set-Content target\QuickAccessAlfresco.ps1
 }
 
-Task -Name Watch -Description "Watch directory for changes" {
-    $FileSystemWatcher = New-Object System.IO.FileSystemWatcher
-    $FileSystemWatcher | Get-Member -Type Properties,Event
-}
+# Watch method to trigger build process on file change
+# Task -Name Watch -Description "Watch directory for changes" {
+#     $FileSystemWatcher = New-Object System.IO.FileSystemWatcher
+#     $FileSystemWatcher.Path = ".\src"
+#     Register-ObjectEvent $FileSystemWatcher Changed -SourceIdentifier FileChanged -Action {
+#         $name = $Event.SourceEventArgs.Name
+#         $changeType = $Event.SourceEventArgs.ChangeType
+#         $timeStamp = $Event.TimeGenerated
+#         Write-Host "The file '$name' was $changeType at $timeStamp" -fore Blue
+#         Invoke-Psake test
+#         Write-Host "Rebuild finished!"
+#     }
+#     $FileSystemWatcher | Get-Member -Type Properties,Event
+# }
