@@ -1,10 +1,12 @@
 # netsh http show sslcert
 # makecert.exe -n "CN=TudorCA" -r -sv TudorCA.pvk TudorCA.cer
 # makecert.exe -sk TudorCASigned -iv TudorCA.pvk -n "CN=TudorCASigned" -ic TudorCA.cer TudorCASigned.cer -sr localmachine -ss MY
+# certutil -viewstore my
+
 # [guid]::NewGuid()
 
 # Use the following commands to bind/unbind SSL cert
-netsh http add sslcert ipport=127.0.0.1:8443 certhash=2e3dd97430ee7d4b75585de29c447ff51c91aaf4 appid='{bc67e41a-4c00-40a1-95f5-fb1360eec107}' certstorename=my
+netsh http add sslcert ipport=127.0.0.1:8443 certhash=9229c4a14d8d16c22bc02e6ae0e3add6b6a4a7c2 appid='{bc67e41a-4c00-40a1-95f5-fb1360eec107}' certstorename=my
 #netsh http del sslcert 127.0.0.1:8443
 
 # Only works for PowerShell 3+
