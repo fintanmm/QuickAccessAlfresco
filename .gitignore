@@ -1,5 +1,7 @@
+legacy/
+.vscode
+documentation.md
 *.ico
-0
 alfresco/
 sh.exe.stackdump
 target/
