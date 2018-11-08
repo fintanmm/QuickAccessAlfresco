@@ -5,13 +5,13 @@ $paramFile = "$here\..\src\$sut"
 . $paramFile
 
 Describe 'domainNameParameter' {
-    it  'Should set test domainName param' {
+    It  'Should set test domainName param' {
         (Get-Command $paramFile).Parameters['domainName'].ParameterType | Should be string
     }
 }
 
 Describe 'disableHomeAndShared' {
-    it  'Should set test disableHomeAndShared param' {
+    It  'Should set test disableHomeAndShared param' {
         (Get-Command $paramFile).Parameters['disableHomeAndShared'].ParameterType | Should be bool
     }
 }

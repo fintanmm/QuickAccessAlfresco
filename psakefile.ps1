@@ -87,7 +87,7 @@ Task -Name ConCat -Description "Concatenates files into one file"{
     Get-Content src/params.ps1,src/user.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/config.ps1,src/main.ps1 | Set-Content target\QuickAccessAlfresco.ps1
 }
 
-# Watch method to trigger build process on file change
+# # Watch method to trigger build process on file change
 # Task -Name Watch -Description "Watch directory for changes" {
 #     $FileSystemWatcher = New-Object System.IO.FileSystemWatcher
 #     $FileSystemWatcher.Path = ".\src"
@@ -96,8 +96,8 @@ Task -Name ConCat -Description "Concatenates files into one file"{
 #         $changeType = $Event.SourceEventArgs.ChangeType
 #         $timeStamp = $Event.TimeGenerated
 #         Write-Host "The file '$name' was $changeType at $timeStamp" -fore Blue
-#         Invoke-Psake test
+#         Psake test
 #         Write-Host "Rebuild finished!"
 #     }
-#     $FileSystemWatcher | Get-Member -Type Properties,Event
+#     #$FileSystemWatcher | Get-Member -Type Properties,Event
 # }
