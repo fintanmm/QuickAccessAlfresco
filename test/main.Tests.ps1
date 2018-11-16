@@ -9,3 +9,9 @@ Describe "Check-PSVersion" {
         $psVersion | Should be $true
     }
 }
+
+# Describe "Check-Fail" {
+#     It "Should fail." {
+#         $pleaseFail | Should be $true
+#     }
+# }
