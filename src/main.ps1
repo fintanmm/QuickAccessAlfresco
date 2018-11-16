@@ -1,9 +1,34 @@
-function Check-PSversion {
-    return $PSVersionTable.PSVersion.Major -gt 2
+Param(
+    [String]$domainName = 'localhost:8443',
+    [String]$mapDomain = "localhost",
+    [String]$prependToLinkTitle = "",
+    [String]$icon,
+    [String]$protocol = "",
+    [Boolean]$disableHomeAndShared = $false
+)
+
+function Check-System {
+    $system = @{}
+    $system[0] = $PSVersionTable.PSVersion.Major -gt 2
+    $system[1] = [System.Environment]::OSVersion.Version.Major -gt 6
+    return $system
 }
 
-$psVersion = Check-PSversion
-if ($domainName -inotmatch 'localhost' -and $psVersion) {
+$version = Check-System
+
+if ($version[1]) {
+
+	New-Item -ItemType directory -Path "$env:userprofile\Alfresco"
+	$linkBaseDir = "$env:userprofile\Alfresco"
+}
+else {
+
+	$linkBaseDir = "$env:userprofile\Links"
+}
+
+$appData = "$env:APPDATA\QuickAccessAlfresco"
+
+if ($domainName -inotmatch 'localhost' -and $version[0]) {
     Delete-Links
     Create-AppData
     $fromUrl = Build-Url
