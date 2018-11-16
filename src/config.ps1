@@ -1,6 +1,6 @@
 function Generate-Config ($fromParams=@{}) {
     $doesConfigExist = Test-Path "$appData\config.json"
-    if(!$doesConfigExist){
+    if(!$doesConfigExist) {
         $fromParams | ConvertTo-Json | Set-Content "$appData\config.json"
         return $true
     }

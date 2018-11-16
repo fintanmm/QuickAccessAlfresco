@@ -52,12 +52,12 @@ TaskTearDown {
 Task default -depends Test
 
 Task -Name RunWebServer -Description "Run web server"{
-    # Cannot query running processes for a different user, server must be launched as admin to work hence the credentials request
-    #$serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
-    #if(!$serverRunning) {
-        Start-Process -FilePath "powershell.exe" -ArgumentList "-noexit -executionpolicy bypass", "$pwd\server.ps1" -Credential (Get-Credential)
-        Start-Sleep 4
-    #}
+    "Starting Web Server"
+    $serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
+    if(!$serverRunning) {
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-noexit -executionpolicy bypass", "$pwd\server.ps1" -Verb runas
+        Start-Sleep 2
+    }
 }
 
 Task Test -depends GetSiteJson {
@@ -68,7 +68,7 @@ Task Test -depends GetSiteJson {
     }
 }
 
-Task GetSiteJson {
+Task GetSiteJson -depends RunWebServer {
     "GetSiteJson executed"
     Invoke-WebRequest "https://127.0.0.1:8443/share/proxy/alfresco/api/people/$whoAmI/sites/sites.json"
 }
@@ -86,18 +86,3 @@ Task -Name ConCat -Description "Concatenates files into one file"{
     New-Item -Path .\target -ItemType Directory -Force
     Get-Content src/params.ps1,src/user.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/config.ps1,src/main.ps1 | Set-Content target\QuickAccessAlfresco.ps1
 }
-
-# Watch method to trigger build process on file change
-# Task -Name Watch -Description "Watch directory for changes" {
-#     $FileSystemWatcher = New-Object System.IO.FileSystemWatcher
-#     $FileSystemWatcher.Path = ".\src"
-#     Register-ObjectEvent $FileSystemWatcher Changed -SourceIdentifier FileChanged -Action {
-#         $name = $Event.SourceEventArgs.Name
-#         $changeType = $Event.SourceEventArgs.ChangeType
-#         $timeStamp = $Event.TimeGenerated
-#         Write-Host "The file '$name' was $changeType at $timeStamp" -fore Blue
-#         Invoke-Psake test
-#         Write-Host "Rebuild finished!"
-#     }
-#     $FileSystemWatcher | Get-Member -Type Properties,Event
-# }
