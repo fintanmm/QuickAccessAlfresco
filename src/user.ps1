@@ -11,6 +11,7 @@ function Build-Url([String] $urlParams="") {
 function WhoAm-I {
     return SearchAD
 }
+
 function SearchAD {
     $user = $env:UserName
     $searchAD = [adsisearcher]"(&(objectCategory=person)(objectClass=user)(samaccountname=$user))"
