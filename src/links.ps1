@@ -71,7 +71,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
         $findPath = @{
             "Sites" = "\\$domainName@SSL\alfresco\webdav\$pathToLower\" + $link.shortName + "\documentLibrary"; 
             "User Homes" = "\\$domainName@SSL\alfresco\webdav\$pathToLower\" + $link.shortName;
-            "Shared" = "\\$domainName@SSL\alfresco\webdav\$whatPath";
+            "Shared" = "\\$domainName@SSL\alfresco\webdav\Shared";
         }
     }
     if ($protocol -eq "sharepoint") {
@@ -79,7 +79,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
         $findPath = @{
             "Sites" = "\\$domainName@SSL\alfresco\aos\$pathToLower\" + $link.shortName + "\documentLibrary"; 
             "User Homes" = "\\$domainName@SSL\alfresco\aos\$pathToLower\" + $link.shortName;
-            "Shared" = "\\$domainName@SSL\alfresco\aos\$whatPath";
+            "Shared" = "\\$domainName@SSL\alfresco\aos\Shared";
         }
     }
 
