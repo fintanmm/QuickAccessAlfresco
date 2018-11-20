@@ -34,8 +34,6 @@ Register-ObjectEvent -InputObject $FileSystemWatcher -EventName Changed -SourceI
     $check++
     if($check -lt 2) {
         Write-Host "The file '$name' was $changeType at $timeStamp" -fore Blue
-        
-        #Psake test     # Works but not output
 
         $serverRunning = Get-WmiObject Win32_Process -Filter "Name='powershell.exe' AND CommandLine LIKE '%server.ps1%'"
 

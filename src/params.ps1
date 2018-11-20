@@ -4,7 +4,7 @@ Param(
     [String]$prependToLinkTitle = "",
     [String]$icon,
     [String]$protocol = "",
-    [Boolean]$disableHomeAndShared = $false
+    [String]$disableHomeAndShared = ""
 )
 
 if ([System.Environment]::OSVersion.Version.Major -gt 6) {
