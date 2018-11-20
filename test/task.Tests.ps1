@@ -11,9 +11,5 @@ Describe "Create-ScheduledTask" {
         $createScheduledTask | Should BeLike "SUCCESS*"
     }
 
-    It "Should check that the scheduled task is not already running" {
-        $createScheduledTask = Create-ScheduledTask("quickAccessAlfresco")
-        $createScheduledTask | Should be $false
-    }
     schtasks.exe /delete /tn quickAccessAlfresco /f
 }

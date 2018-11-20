@@ -3,12 +3,12 @@ function Create-ScheduledTask($taskName) {
     $taskFile = ($PSScriptRoot + "\QuickAccessAlfresco.ps1 $($config["switches"])")
     $taskIsRunning = schtasks.exe /query /tn $taskName
 
-    if (!$taskIsRunning) {
-        $createTask = schtasks.exe /create /tn "$taskName" /sc HOURLY /tr "powershell.exe -executionpolicy bypass -Noninteractive -Command $taskFile" /f
-
-        if ($createTask) {
-            return $createTask
-        }
+    if($taskIsRunning) {
+        schtasks.exe /end /tn $taskName
+        schtasks.exe /delete /tn $taskName /f
     }
-    return $false
+
+    $createTask = schtasks.exe /create /tn "$taskName" /sc HOURLY /tr "powershell.exe -executionpolicy bypass -Noninteractive -Command $taskFile" /f
+
+    return $createTask
 }
