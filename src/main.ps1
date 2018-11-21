@@ -1,32 +1,29 @@
 function Check-System {
     
-    $system = @{}
+    $systemCheck = @{}
 
-    if($PSVersionTable.PSVersion.Major -gt 2) {
-        $system[0] = $true;
-    }
+    $systemCheck["PS"] = if($PSVersionTable.PSVersion.Major -gt 2) {$true} else {$false}
 
-    if([System.Environment]::OSVersion.Version.Major -gt 6) {
-        $system[1] = $true;
-    }
+    $systemCheck["OS"] = if([System.Environment]::OSVersion.Version.Major -gt 6) {$true} else {$false}
 
-    return $system
+    return $systemCheck
 }
 
 function Create-Win10Folder {
 
-    $shell = new-object -com shell.application
+    New-Item -ItemType directory -Path "$env:userprofile\$folderName" -Force
+    $shell = New-Object -ComObject shell.application
     $shell.Namespace("$env:userprofile\$folderName").Self.InvokeVerb("pintohome")
 
+    return $shell
 }
 
-$system = Check-System
+$systemCheck = Check-System
 
-if ($domainName -inotmatch 'localhost' -and $system[0]) {
+if ($domainName -inotmatch 'localhost' -and $systemCheck["PS"]) {
 
-    if ($system[1]) {
+    if ($systemCheck["OS"]) {
 
-        New-Item -ItemType directory -Path "$env:userprofile\$folderName"
         Create-Win10Folder
         $linkBaseDir = "$env:userprofile\$folderName"
     }
@@ -40,7 +37,8 @@ if ($domainName -inotmatch 'localhost' -and $system[0]) {
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
     Generate-Config @{"switches" = $PsBoundParameters; "sites" = $listOfSites}
-    Create-ScheduledTask "QuickAccessAlfresco"
+    
+    #Create-ScheduledTask "QuickAccessAlfresco"
 
     if ($disableHomeAndShared -gt 0) {
         Create-HomeAndSharedLinks
