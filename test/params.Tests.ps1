@@ -12,6 +12,6 @@ Describe 'domainNameParameter' {
 
 Describe 'disableHomeAndShared' {
     It  'Should set test disableHomeAndShared param' {
-        (Get-Command $paramFile).Parameters['disableHomeAndShared'].ParameterType | Should be bool
+        (Get-Command $paramFile).Parameters['disableHomeAndShared'].ParameterType | Should be string
     }
 }

@@ -1,13 +1,13 @@
-# netsh http show sslcert
-# makecert.exe -n "CN=TudorCA" -r -sv TudorCA.pvk TudorCA.cer
-# makecert.exe -sk TudorCASigned -iv TudorCA.pvk -n "CN=TudorCASigned" -ic TudorCA.cer TudorCASigned.cer -sr localmachine -ss MY
-# certutil -viewstore my
+Write-Host "PRESS ENTER TO BYPASS PASSWORD... DO NOT CLOSE THE PROMPT AFTER CERT IS ADDED"
 
-# [guid]::NewGuid()
+CERTUTIL -f -importpfx ".\certificates\qaaCert.pfx"
+
+netsh http del sslcert 127.0.0.1:8443
+
+$generateID = "{" + [guid]::NewGuid() + "}"
 
 # Use the following commands to bind/unbind SSL cert
-netsh http add sslcert ipport=127.0.0.1:8443 certhash=9229c4a14d8d16c22bc02e6ae0e3add6b6a4a7c2 appid='{bc67e41a-4c00-40a1-95f5-fb1360eec107}' certstorename=my
-#netsh http del sslcert 127.0.0.1:8443
+netsh http add sslcert ipport=127.0.0.1:8443 certhash=f77737e7866aa384e3f350f65c7df00c2d724f27 appid=$generateID certstorename=my
 
 # Only works for PowerShell 3+
 Set-Location -Path $PSScriptRoot
