@@ -1,6 +1,6 @@
-Write-Host "PRESS ENTER TO BYPASS PASSWORD... DO NOT CLOSE THE PROMPT AFTER CERT IS ADDED"
+#Setup: run the following command in powershell and press enter when asked for password
 
-CERTUTIL -f -importpfx ".\certificates\qaaCert.pfx"
+#CERTUTIL -f -importpfx ".\certificates\qaaCert.pfx"
 
 netsh http del sslcert 127.0.0.1:8443
 
