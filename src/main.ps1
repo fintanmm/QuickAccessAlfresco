@@ -39,9 +39,9 @@ if ($domainName -inotmatch 'localhost' -and $systemCheck["PS"]) {
     
     #Create-ScheduledTask "QuickAccessAlfresco"
 
+    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
+
     if ($disableHomeAndShared -gt 0) {
         Create-HomeAndSharedLinks
     }
-
-    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
 }
