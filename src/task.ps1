@@ -1,7 +1,7 @@
 function Create-ScheduledTask($taskName) {
     $config = Parse-Config
-    $taskFile = ($PSScriptRoot + "\QuickAccessAlfresco.ps1 $($config["switches"])")
-    $taskIsRunning = schtasks.exe /query /tn $taskName
+    $taskFile = $PSScriptRoot + "\QuickAccessAlfresco.ps1 $($config["switches"])"
+    $taskIsRunning = Start-Process schtasks.exe -ArgumentList "/query /tn $taskName" -WindowStyle hidden -ErrorAction SilentlyContinue
 
     if($taskIsRunning) {
         schtasks.exe /end /tn $taskName

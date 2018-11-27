@@ -22,6 +22,7 @@ Describe 'Create-HomeAndSharedLinks' {
 
 Describe 'Create-Link' {
     Mock Read-Config {return [PSCustomObject]@{"switches" =[PSCustomObject]@{"icon" = "\\some\where\over\the\rainbow\quickaccess_icon.ico";};} }
+    
     It "Should create Quick Access link to Alfresco." {
         $createLink = Create-Link $convertedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"
@@ -160,7 +161,7 @@ Describe 'Create-QuickAccessLinks' {
     }
     Clean-Up @("Benchmark", "Recruitment")
 
-    It "Should pepend text to all Quick Access links to sites within Alfresco" {
+    It "Should prepend text to all Quick Access links to sites within Alfresco" {
         $createLinks = Create-QuickAccessLinks $convertedJSON "Alfresco - "
 
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"

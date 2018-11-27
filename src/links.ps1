@@ -8,8 +8,12 @@ function Create-HomeAndSharedLinks {
 function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol="") {
     $createdLinks = @()
 
+    if($links.Count -gt 0) {
+        Delete-Links > $null
+    }
+
     if (![string]::IsNullOrEmpty($icon)) {
-        copyIcon -icon $icon
+        CopyIcon -icon $icon
         $icon = "$appData\$icon"
     }
 
@@ -25,15 +29,18 @@ function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol
                 $createdLinks += $addLink
             }
     }
+
     return $createdLinks
 }
 
 function CopyIcon($icon="") {
     $testPath = (-Not (Test-Path "$appData\$icon"))
+
     if ($icon -And $testPath) {
         Copy-Item $icon "$appData\"
         return $true
     }
+
     return $false
 }
 
@@ -66,6 +73,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
             "Shared" = "ftps://$mapDomain/alfresco/$whatPath";
         }
     }
+
     if ($protocol -eq "webdav") {
         $pathToLower = $whatPath.ToLower()
         $findPath = @{
@@ -74,6 +82,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
             "Shared" = "\\$domainName@SSL\alfresco\webdav\Shared";
         }
     }
+
     if ($protocol -eq "sharepoint") {
         $pathToLower = $whatPath.ToLower()
         $findPath = @{
@@ -94,10 +103,12 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
+
     if($link.icon){
         $iconLocation = "$appData\{0}" -f $link.icon.Split('\')[-1]
         $shortcut.IconLocation = $iconLocation
     }
+    
     $shortcut.Save()
     return $shortcut
 }
