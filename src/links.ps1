@@ -5,34 +5,6 @@ function Create-HomeAndSharedLinks {
     return $links
 }
 
-function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol="") {
-    $createdLinks = @()
-
-    if($links.Count -gt 0) {
-        Delete-Links > $null
-    }
-
-    if (![string]::IsNullOrEmpty($icon)) {
-        CopyIcon -icon $icon
-        $icon = "$appData\$icon"
-    }
-
-    for($i = 0; $i -lt $links.Count; $i++) {
-        if (![string]::IsNullOrEmpty($prepend)) {
-            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name prepend -Value $prepend -Force
-        }
-        if (![string]::IsNullOrEmpty($icon)) {
-            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name icon -Value $icon -Force
-        }
-        $addLink = Create-Link $links[$i] -protocol $protocol
-            if ($addLink -ne $false) {
-                $createdLinks += $addLink
-            }
-    }
-
-    return $createdLinks
-}
-
 function CopyIcon($icon="") {
     $testPath = (-Not (Test-Path "$appData\$icon"))
 
@@ -54,10 +26,6 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     if($link.prepend){
         $path = "$linkBaseDir\$($link.prepend)$($link.title).lnk"
-    }
-
-    if (Test-Path $path) {
-        return $false
     }
 
     $findPath = @{
@@ -111,6 +79,35 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     
     $shortcut.Save()
     return $shortcut
+}
+
+function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol="") {
+    $createdLinks = @()
+
+    if($links.Count -gt 0) {
+        Delete-Links > $null
+    }
+
+    Write-Host $createdLinks
+    if (![string]::IsNullOrEmpty($icon)) {
+        CopyIcon -icon $icon
+        $icon = "$appData\$icon"
+    }
+
+    for($i = 0; $i -lt $links.Count; $i++) {
+        if (![string]::IsNullOrEmpty($prepend)) {
+            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name prepend -Value $prepend -Force
+        }
+        if (![string]::IsNullOrEmpty($icon)) {
+            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name icon -Value $icon -Force
+        }
+        $addLink = Create-Link $links[$i] -protocol $protocol
+            if ($addLink -ne $false) {
+                $createdLinks += $addLink
+            }
+    }
+
+    return $createdLinks
 }
 
 function Delete-Links {
