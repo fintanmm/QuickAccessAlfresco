@@ -5,35 +5,14 @@ function Create-HomeAndSharedLinks {
     return $links
 }
 
-function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol="") {
-    $createdLinks = @()
-
-    if (![string]::IsNullOrEmpty($icon)) {
-        copyIcon -icon $icon
-        $icon = "$appData\$icon"
-    }
-
-    for($i = 0; $i -lt $links.Count; $i++) {
-        if (![string]::IsNullOrEmpty($prepend)) {
-            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name prepend -Value $prepend -Force
-        }
-        if (![string]::IsNullOrEmpty($icon)) {
-            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name icon -Value $icon -Force
-        }
-        $addLink = Create-Link $links[$i] -protocol $protocol
-            if ($addLink -ne $false) {
-                $createdLinks += $addLink
-            }
-    }
-    return $createdLinks
-}
-
 function CopyIcon($icon="") {
     $testPath = (-Not (Test-Path "$appData\$icon"))
+
     if ($icon -And $testPath) {
         Copy-Item $icon "$appData\"
         return $true
     }
+
     return $false
 }
 
@@ -49,10 +28,6 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
         $path = "$linkBaseDir\$($link.prepend)$($link.title).lnk"
     }
 
-    if (Test-Path $path) {
-        return $false
-    }
-
     $findPath = @{
         "Sites" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName + "\documentLibrary"; 
         "User Homes" = "\\$mapDomain\Alfresco\$whatPath\" + $link.shortName;
@@ -66,6 +41,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
             "Shared" = "ftps://$mapDomain/alfresco/$whatPath";
         }
     }
+
     if ($protocol -eq "webdav") {
         $pathToLower = $whatPath.ToLower()
         $findPath = @{
@@ -74,6 +50,7 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
             "Shared" = "\\$domainName@SSL\alfresco\webdav\Shared";
         }
     }
+
     if ($protocol -eq "sharepoint") {
         $pathToLower = $whatPath.ToLower()
         $findPath = @{
@@ -94,12 +71,43 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
 
     $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
+
     if($link.icon){
         $iconLocation = "$appData\{0}" -f $link.icon.Split('\')[-1]
         $shortcut.IconLocation = $iconLocation
     }
+    
     $shortcut.Save()
     return $shortcut
+}
+
+function Create-QuickAccessLinks([array]$links, $prepend="", $icon="", $protocol="") {
+    $createdLinks = @()
+
+    if($links.Count -gt 0) {
+        Delete-Links > $null
+    }
+
+    Write-Host $createdLinks
+    if (![string]::IsNullOrEmpty($icon)) {
+        CopyIcon -icon $icon
+        $icon = "$appData\$icon"
+    }
+
+    for($i = 0; $i -lt $links.Count; $i++) {
+        if (![string]::IsNullOrEmpty($prepend)) {
+            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name prepend -Value $prepend -Force
+        }
+        if (![string]::IsNullOrEmpty($icon)) {
+            Add-Member -InputObject $links[$i] -MemberType NoteProperty -Name icon -Value $icon -Force
+        }
+        $addLink = Create-Link $links[$i] -protocol $protocol
+            if ($addLink -ne $false) {
+                $createdLinks += $addLink
+            }
+    }
+
+    return $createdLinks
 }
 
 function Delete-Links {

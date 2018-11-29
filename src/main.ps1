@@ -33,16 +33,15 @@ if ($domainName -inotmatch 'localhost' -and $systemCheck["PS"]) {
     }
     
     $appData = "$env:APPDATA\QuickAccessAlfresco"
-    Delete-Links
     $fromUrl = Build-Url
     $listOfSites = Get-ListOfSites $fromUrl
     Generate-Config @{"switches" = $PsBoundParameters; "sites" = $listOfSites}
     
     #Create-ScheduledTask "QuickAccessAlfresco"
 
+    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
+
     if ($disableHomeAndShared -gt 0) {
         Create-HomeAndSharedLinks
     }
-
-    Create-QuickAccessLinks $listOfSites -prepend $prependToLinkTitle -icon $icon -protocol $protocol
 }

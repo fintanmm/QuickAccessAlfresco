@@ -26,18 +26,18 @@ Describe "Create-Win10Folder" {
         $systemCheck = Check-System
         if($systemCheck["OS"]) {
             Create-Win10Folder
-            [System.IO.File]::Exists("$env:userprofile\Sites") | Should be $true
+            Test-Path "$env:userprofile\Sites" | Should be $true
         }
         else {
-            [System.IO.File]::Exists("$env:userprofile\Sites") | Should be $false
+            Test-Path "$env:userprofile\Sites" | Should be $false
         }
     }
 
     It "Should pin folder to quick access." {
         $systemCheck = Check-System
         if($systemCheck["OS"]) {
-            $shell = Create-Win10Folder
-            $shell.Namespace("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}").Items() | where {$_.Path -eq "Sites"} | Should -Not -Be $null
+            $shell = New-Object -ComObject shell.application
+            $shell.Namespace("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}").Items() | where {$_.Path -eq "$env:userprofile\Sites"} | Should -Not -Be $null
         }
     }
 }

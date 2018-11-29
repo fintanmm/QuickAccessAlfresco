@@ -22,6 +22,7 @@ Describe 'Create-HomeAndSharedLinks' {
 
 Describe 'Create-Link' {
     Mock Read-Config {return [PSCustomObject]@{"switches" =[PSCustomObject]@{"icon" = "\\some\where\over\the\rainbow\quickaccess_icon.ico";};} }
+    
     It "Should create Quick Access link to Alfresco." {
         $createLink = Create-Link $convertedJSON[0]
         $result = Test-Path "$env:userprofile\Links\Benchmark.lnk"
@@ -29,14 +30,9 @@ Describe 'Create-Link' {
         $createLink.Description | Should Match $convertedJSON[0].description
     }
 
-    It "Should not create Quick Access link to Alfresco because it exists." {
-        $createLink = Create-Link $convertedJSON[0]
-        $createLink | Should be $false
-    }
-
     It "Should not create an empty Quick Access link to Alfresco." {
         $createLink = Create-Link @{}
-        $createLink | Should be $false
+        $createLink[0] | Should be $false
     }
 
     It "Should pepend text to the Quick Access link to Alfresco." {
@@ -153,6 +149,11 @@ Describe 'Create-QuickAccessLinks' {
     Mock Parse-Config {return @{"switches" = @{"icon" = "quickaccess_icon.ico";};} }
     Mock WhoAm-I {return $whoAmI }
 
+    It "Should not delete existing links if array is empty" {
+        $createLinks = Create-QuickAccessLinks -links @()
+        $createLinks | Should be $null
+    }
+
     It "Should create all Quick Access links to sites within Alfresco" {
         $createLinks = Create-QuickAccessLinks $convertedJSON
         $createLinks[0].Description | Should Match $convertedJSON[0].description
@@ -160,7 +161,7 @@ Describe 'Create-QuickAccessLinks' {
     }
     Clean-Up @("Benchmark", "Recruitment")
 
-    It "Should pepend text to all Quick Access links to sites within Alfresco" {
+    It "Should prepend text to all Quick Access links to sites within Alfresco" {
         $createLinks = Create-QuickAccessLinks $convertedJSON "Alfresco - "
 
         $benchmark = Test-Path "$env:userprofile\Links\Alfresco - Benchmark.lnk"
