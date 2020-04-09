@@ -60,24 +60,40 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
         }
     }
 
+    $withMessage = "Used to decide on the Endpoint: $whatpath."
     $targetPath = $findPath.Get_Item($whatPath)
-
+    
     if ($targetPath.length -eq 0) {
+        Append-ToLog($withMessage +" 
+        Target Path Length: "+$targetPath.length + ".
+        There maybe an error here.
+        The shortcut was not saved.")
         return $false
     }
 
     $wshShell = New-Object -ComObject WScript.Shell
     $shortcut = $wshShell.CreateShortcut("$path")
-
+    $withMessage = $withMessage + "
+    The shortcut path is: $path"
+    
     $shortcut.TargetPath = $targetPath
     $shortcut.Description = $link.description
-
+    $withMessage = $withMessage + "
+    The description of the link is: " + $link.description
+    
     if($link.icon){
         $iconLocation = "$appData\{0}" -f $link.icon.Split('\')[-1]
         $shortcut.IconLocation = $iconLocation
+        $withMessage = "
+        There is an icon set: $iconLocation"
     }
     
     $shortcut.Save()
+    
+    $withMessage = $withMessage + "
+    Test if the point Endpoint was saved: 
+    " + $shortcut.TargetPath
+    Append-ToLog($withMessage)
     return $shortcut
 }
 
