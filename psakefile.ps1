@@ -84,5 +84,5 @@ Task -Name Format -Description "Format code" {
 
 Task -Name ConCat -Description "Concatenates files into one file"{
     New-Item -Path .\target -ItemType Directory -Force
-    Get-Content src/params.ps1,src/user.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/config.ps1,src/main.ps1 | Set-Content target\QuickAccessAlfresco.ps1
+    Get-Content src/params.ps1,src/user.ps1,src/logging.ps1,src/links.ps1,src/task.ps1,src/icon.ps1,src/config.ps1,src/main.ps1 | Set-Content target\QuickAccessAlfresco.ps1
 }
