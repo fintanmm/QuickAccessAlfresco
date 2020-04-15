@@ -77,10 +77,12 @@ function Create-Link($link, [String] $whatPath = "Sites", $protocol="") {
     The shortcut path is: $path"
     
     $shortcut.TargetPath = $targetPath
-    $shortcut.Description = $link.description
+    $shortcut.Description = $link.description.substring(0, [System.Math]::Min(245, $link.description.Length))
     $withMessage = $withMessage + "
-    The description of the link is: " + $link.description
-    
+    The description of the link is: " +  $link.description
+    $withMessage = $withMessage + "
+    Description length is: " +  $link.description.Length
+
     if($link.icon){
         $iconLocation = "$appData\{0}" -f $link.icon.Split('\')[-1]
         $shortcut.IconLocation = $iconLocation
