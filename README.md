@@ -27,3 +27,8 @@ Edit bootstrapQuickAccessAlfresco.bat and append the desired params.
 - [x] Test Kerberos.
 - [x] An init function to process params set by the bootstrap script.
 - [x] Create and enable scheduling.
+
+## Dev deps
+- pester
+- psake
+- PSScriptAnalyzer
