@@ -43,9 +43,9 @@ TaskSetup {
 
 TaskTearDown {
     "Executing task tear down"
-    # Remove-Item -Path "$webDavDir"
-    # Remove-Item -Path "$spDir"
-    # Remove-Item -Path "$webDir"
+    Remove-Item -Path "$webDavDir" -Force -Recurse
+    Remove-Item -Path "$spDir" -Force -Recurse
+    Remove-Item -Path "$webDir" -Force -Recurse
     # Get-Process | Where-Object { $_.Name -eq "server.ps1" } | Select-Object -First 1 | Stop-Process
 }
 
