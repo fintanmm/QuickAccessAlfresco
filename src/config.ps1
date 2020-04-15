@@ -1,6 +1,7 @@
 function Generate-Config ($fromParams=@{}) {
     $doesConfigExist = Test-Path "$appData\config.json"
     if(!$doesConfigExist) {
+        New-Item -Path $appData -ItemType "directory"
         $fromParams | ConvertTo-Json | Set-Content "$appData\config.json"
         return $true
     }
